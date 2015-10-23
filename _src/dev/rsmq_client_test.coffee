@@ -1,0 +1,1 @@
+rsmq = require "rsmq"
