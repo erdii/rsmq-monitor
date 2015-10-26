@@ -29,3 +29,6 @@ monitor rsmq stats for:
 alert:
 * if # of msgs gets too high
 * if rcvd and sent msgs diverge too much
+
+
+Start with `NODE_ENV=development DEBUG=rsmq* node-dev app/app.js`

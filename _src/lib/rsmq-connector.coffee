@@ -1,10 +1,9 @@
 debug = require("debug")("rsmq-monitor:lib:rsmq-connector")
-exec = require "./cmd_exec"
+tools = require "./tools"
 RedisSMQ = require "rsmq"
 
 rsmq = null
-exec "../sh/gethostip.sh", [], (me) =>
-	hostip = me.stdout
+tools.exec "../sh/gethostip.sh", [], (hostip) =>
 	rsmq = new RedisSMQ {host: hostip, port: 6379, ns: "rsmq"}
 	console.log "connected"
 	return

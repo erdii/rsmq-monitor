@@ -8,9 +8,10 @@ inspect = (arg, i, len) ->
 
 module.exports = ( key ) ->
 	ret =
-		debug: (key) ->
-			if procces.env.NODE_ENV is "development"
-				return debug( key )
+		debug: () ->
+			if process.env.NODE_ENV is "development"
+				debug( key )(arg) for arg in arguments
+				return
 			else
 				return () -> return
 			return

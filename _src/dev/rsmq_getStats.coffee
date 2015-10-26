@@ -1,0 +1,1 @@
+RedisSMQ = require "rsmq"

@@ -72,9 +72,10 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     curl -sL https://deb.nodesource.com/setup | sudo bash -
     sudo apt-get update
-    sudo apt-get install -y nodejs build-essential librrd-dev rrdtool git
-    sudo npm i -g grunt-cli coffee-script node-dev static-server
+    sudo apt-get install -y nodejs build-essential librrd-dev rrdtool git redis-server
+    sudo npm i -g grunt-cli coffee-script node-dev static-server rsmq-cli
     mkdir -p /var/rrd && chown vagrant:vagrant /var/rrd
+    cp /vagrant/_src_static/index.html /var/rrd/index.html
     cd /vagrant && npm i
     cd /vagrant/sh && sh npm_i_node_rrd.sh
   SHELL

@@ -1,4 +1,4 @@
-{log, logErr, debug} = require("./lib/logger")("rsmq-monitor:app")
+{log, logErr, debug} = require("./logger")("rsmq-monitor:app")
 rrd = require "node_rrd"
 tools = require "./tools"
 
@@ -20,7 +20,7 @@ class RRD
 				"RRA:MAX:0.5:60:60"
 				"RRA:MIN:0.5:60:60"
 			],
-			(err) ->
+			(err) =>
 				if err?
 					cb(err)
 					return
@@ -42,17 +42,20 @@ class RRD
 		tools.exec "rrdtool", [
 			"graph"
 			picname
-			"DEF:msgs=#{@filename}:rcv:" + options.cf
+			"--title=RSMQ-Monitor"
+			"--vertical-label=Msgs"
+			"DEF:msgs=#{@filename}:mc:" + options.cf
 			"DEF:rcvmsgs=#{@filename}:rcv:" + options.cf
 			"DEF:sentmsgs=#{@filename}:sent:" + options.cf
-			"LINE2:msgs#00FF00"
-			"LINE1:rcvmsgs#FF0000"
-			"LINE1:rcvmsgs#0000FF"
+			"LINE2:msgs#00FF00:Messages in queue"
+			"LINE1:rcvmsgs#FF0000:Received Msgs/Sec"
+			"LINE1:sentmsgs#0000FF:Sent Msgs/Sec"
+			"--start"
+			options.start
 			"--end"
 			"now"
-			"--start"
-			options.start ], (stdout) ->
-				debug "'#{stdout}'" unless stdout is "481x141\n"
+			], (stdout) ->
+				debug "'#{stdout}'" unless stdout is "497x173\n"
 				cb(stdout)
 				return
 		return
