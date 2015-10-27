@@ -1,22 +1,17 @@
-debug = require("debug")("rsmq-monitor:lib:rsmq-connector")
-tools = require "./tools"
+{ log, logErr, debug } = require("./logger")("rsmq-monitor:lib:rsmq-connector")
 RedisSMQ = require "rsmq"
-
-rsmq = null
-tools.exec "../sh/gethostip.sh", [], (hostip) =>
-	rsmq = new RedisSMQ {host: hostip, port: 6379, ns: "rsmq"}
-	console.log "connected"
-	return
-
+tools = require "./tools"
 
 class Connector
 	constructor: () ->
+		@rsmq = new RedisSMQ
+			host: "127.0.0.1"
+			port: 6379
+			ns: qconf.ns
 		return
 
 	getStats: (qname, cb) =>
-		rsmq.getQueueAttributes qname, (err, resp) ->
-			cb(err, resp)
-			return
+		rsmq.getQueueAttributes {qname: qname}, cb
 		return
 
 module.exports = new Connector()

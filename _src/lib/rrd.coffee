@@ -8,17 +8,14 @@ class RRD
 		@filename = filename
 		return
 
-	create: (step, starttime, cb) =>
-		rrd.create @filename, step, starttime,
+	create: (step, cb) =>
+		rrd.create @filename, step, tools.now() - 10,
 			[
 				# TODO calculate RRA length etc... dynamical
 				"DS:mc:GAUGE:2:0:U"
 				"DS:rcv:COUNTER:2:0:U"
 				"DS:sent:COUNTER:2:0:U"
 				"RRA:LAST:0.5:1:3600"
-				"RRA:AVERAGE:0.5:60:60"
-				"RRA:MAX:0.5:60:60"
-				"RRA:MIN:0.5:60:60"
 			],
 			(err) =>
 				if err?
@@ -38,10 +35,10 @@ class RRD
 		rrd.update @filename, template, _data, cb
 		return
 
-	graph: (picname, options, cb) =>
-		tools.exec "rrdtool", [
+	graph: (options) =>
+		graph = tools.exec "rrdtool", [
 			"graph"
-			picname
+			"-"
 			"--title=RSMQ-Monitor"
 			"--vertical-label=Msgs"
 			"DEF:msgs=#{@filename}:mc:" + options.cf
@@ -54,10 +51,7 @@ class RRD
 			options.start
 			"--end"
 			"now"
-			], (stdout) ->
-				debug "'#{stdout}'" unless stdout is "497x173\n"
-				cb(stdout)
-				return
-		return
+			]
+		return graph
 
 module.exports = RRD

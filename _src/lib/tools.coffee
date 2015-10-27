@@ -1,15 +1,17 @@
+
+
 class Tools
-	now: () -> Math.floor(Date.now()/1000)
-	exec: (cmd, args, cb_end) ->
+	error: (options) ->
+		error = new Error()
+		error.message = options.msg
+		error.name = options.name if options.name?
+		return error
+
+	exec: (cmd, args) ->
 		spawn = require("child_process").spawn
 		child = spawn(cmd, args)
-		stdout = ""
-		child.stdout.on "data", (data) ->
-			stdout += data.toString()
-			return
-		child.stdout.on "end", () ->
-			cb_end stdout
-			return
-		return
+		return child
+
+	now: () -> Math.floor(Date.now()/1000)
 
 module.exports = new Tools()

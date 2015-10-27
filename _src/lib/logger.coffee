@@ -1,4 +1,4 @@
-# USAGE: { log, logErr, debug } = require("./lib/logger")
+# USAGE: { log, logErr, debug } = require("./lib/logger")(KEY)
 
 util = require("util")
 debug = require("debug")

@@ -1,11 +1,12 @@
-queuename = "moniqueue"
+qconf = require "../queue.json"
+
 
 
 RedisSMQ = require "rsmq"
-rsmq = new RedisSMQ { host: "127.0.0.1", port: 6379, ns: "rsmq" }
+rsmq = new RedisSMQ qconf.rsmq
 
 
-rsmq.createQueue { qname: queuename }, (err, resp) ->
+rsmq.createQueue { qname: qconf.qname }, (err, resp) ->
 	if resp is 1
 		console.log "#{queuename} created!"
 	return
