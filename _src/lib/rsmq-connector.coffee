@@ -2,7 +2,7 @@
 RedisSMQ = require "rsmq"
 tools = require "./tools"
 
-class Connector
+class RMConnector
 	constructor: () ->
 		@rsmq = new RedisSMQ
 			host: "127.0.0.1"
@@ -14,4 +14,4 @@ class Connector
 		rsmq.getQueueAttributes {qname: qname}, cb
 		return
 
-module.exports = new Connector()
+module.exports = new RMConnector()

@@ -1,0 +1,6 @@
+{
+	"dbfolder": "/var/rrd/",
+	"queues": {
+		"bla": "bla"
+	}
+}

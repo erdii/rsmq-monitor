@@ -11,31 +11,35 @@ Multiple queues will be polled by a defined interval for their stats to generate
 
 The System will be split into multiple modules to increase the stability.
 
- - **Aggregator**: A process that polls the queues and pushes the data into a shared RR-database ([RRDtool](http://oss.oetiker.ch/rrdtool/index.en.html))
+ - **Aggregator**: A process that polls the queues and pushes the data into an InfluxDB instance ([InfluxDB](https://influxdb.com/))
  - **Stats**: A server that will query the database and returns a graph as an image or just the data.
 
 ## install
- .....
+TODO
 
 ## Config
 
 To configure all the systems a config.json has to be defined with the following settings.
 
-- **rrdtool**: *( `String` default: `rrdtool`)*: the path to the rrdtool binary
-- **dbfolder**: *( `String` default: `./dbs/`)*: the RR-database folder path - one RRD per `queues[].key` in config
-- **queue_default**: *( `Object` )*: A default rsmq configuration
-	- **queue_default.host**: *( `String` default: `127.0.0.1` )*: The default host for all queues
-	- **queue_default.port**: *( `Number` default: `6379` )*: The default port for all queues
-	- **queue_default.ns**: *( `String` default: `rsmq` )*: The default namespace for all queues
-	- **queue_default.interval**: *( `Number` default: `1` )*: the poll interval in seconds
+- **influx**: *( `Object` )*: The influx connection options
+  - **host**: *( `String` default: `127.0.0.1` )*: the InfluxDB host
+  - **port**: *( `Number` default: `8086` )*: the InfluxDB http-API port
+  - **database**: *( `String` default: `rsmq_monitor` )*: the DB name
+  - **username**: *( `String` default: null)*: the DB username *(can also be set via envvar DBUSER)*
+  - **password**: *( `String` default: null)*: the DB password *(can also be set via envvar DBPASS)*
+- **queue_defaults**: *( `Object` )*: A default rsmq configuration
+	- **queue_defaults.host**: *( `String` default: `127.0.0.1` )*: The default host for all queues
+	- **queue_defaults.port**: *( `Number` default: `6379` )*: The default port for all queues
+	- **queue_defaults.ns**: *( `String` default: `rsmq` )*: The default namespace for all queues
+	- **queue_defaults.interval**: *( `Number` default: `1` )*: the poll interval in seconds
 - **queues**: *( `Object[]` )*:
 	- **queues[].key**: *( `String` **required** )*: the queues identifier that will be displayed with the stats
 	- **queues[].qname**: *( `String` **required** )*: the queues qname on the rsmq server
-	- **queues[].host**: *( `String` )*: the queues rsmq host *defaults to queue_default.host*
-	- **queues[].port**: *( `String` )*: the queues rsmq port *defaults to queue_default.port*
-	- **queues[].ns**: *( `String` )*: the queues rsmq namespace *defaults to queue_default.ns*
-	- **queues[].interval**: *( `Number`)*: the poll interval in seconds *defaults to queue_default.interval*  
-	TODO:  add additional rrd archive settings
+	- **queues[].host**: *( `String` )*: the queues rsmq host *defaults to queue_defaults.host*
+	- **queues[].port**: *( `String` )*: the queues rsmq port *defaults to queue_defaults.port*
+	- **queues[].ns**: *( `String` )*: the queues rsmq namespace *defaults to queue_defaults.ns*
+	- **queues[].interval**: *( `Number`)*: the poll interval in seconds *defaults to queue_defaults.interval*  
+	TODO:  add additional retention settings
 
 ## run
 
@@ -50,23 +54,15 @@ To configure all the systems a config.json has to be defined with the following 
 ## Methods
 
 ### Aggregator
-
 ....
 
-### RRD-connector
-
-- **create**
-- **recreate?**
+### Influx-connector
 - **add**
 - **stats**
 - **graph**
-
-
+- **flush**
 
 ## Development
-	.... vagrant
-
-* rrdtool cannot create a round-robin-database on a vbox filesystem
-
+TODO
 
 Start with `NODE_ENV=development DEBUG=rsmq* node-dev app/app.js`

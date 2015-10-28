@@ -1,10 +1,19 @@
-class RMErrors
-	create: ( name, opts={} )->
+_ = require "lodash"
 
-		_err = new Error()
-		_err.name = name
-		_err.message = @ERRORS[name] or "-"
-		return _err
-	ERRORS:
-		"ETYPE": "config.queues must be an array"
+errorTemplates =
+	"ETYPE": "`<%= identifier %>` must be of type `<%= expected %>`"
+	"EMISSINGPROPERTY": "missing property `<%= property %>` in `<%= identifier %>`"
+
+class RMErrors
+	constructor: () ->
+		@_errors = {}
+		@_errors[key] = _.template(msg) for key, msg of errorTemplates
+		return
+
+	create: (name, opts={}) =>
+		err = new Error()
+		err.name = name
+		err.message = @_errors[name](opts) or "-"
+		return err
+
 module.exports = new RMErrors()

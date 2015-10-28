@@ -1,12 +1,4 @@
-
-
-class Tools
-	error: (options) ->
-		error = new Error()
-		error.message = options.msg
-		error.name = options.name if options.name?
-		return error
-
+class RMTools
 	exec: (cmd, args) ->
 		spawn = require("child_process").spawn
 		child = spawn(cmd, args)
@@ -14,4 +6,4 @@ class Tools
 
 	now: () -> Math.floor(Date.now()/1000)
 
-module.exports = new Tools()
+module.exports = new RMTools()

@@ -16,10 +16,9 @@ module.exports = ( key ) ->
 				return () -> return
 			return
 		log: ->
-			console.log "#{key}: " + (inspect(arg, i, arguments.length) for arg, i in arguments)
+			console.log "#{(new Date()).toISOString()} #{key}: " + (inspect(arg, i, arguments.length) for arg, i in arguments)
 			return
 		logErr: ->
-			console.error key + ":ERROR", arguments
+			console.error "#{(new Date()).toISOString()} #{key}:ERROR", arguments
 			return
-
 	return ret

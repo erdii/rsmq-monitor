@@ -39,8 +39,21 @@ module.exports = ( grunt ) ->
 				require: ["should"]
 				reporter: "spec"
 				bail: true
+			brokenconfig_type:
+				src: ["app/test/brokenconfig_type.js"]
+				options:
+					env:
+						CONF: "./app/test/configs/brokenconfig_type.json"
+			brokenconfig_property:
+				src: ["app/test/brokenconfig_property.js"]
+				options:
+					env:
+						CONF: "./app/test/configs/brokenconfig_property.json"
 			config:
 				src: ["app/test/config.js"]
+				options:
+					env:
+						CONF: "./app/test/configs/config.json"
 
 	# Load npm modules
 	grunt.loadNpmTasks "grunt-contrib-clean"

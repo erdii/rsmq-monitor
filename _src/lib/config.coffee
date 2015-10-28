@@ -1,18 +1,23 @@
 { log, logErr, debug } = require("./logger")("rsmq-monitor:lib:config")
 _ = require "lodash"
+errors = require "./errors"
 extend = require "extend"
-path = require( "path" )
+path = require "path"
 tools = require "./tools"
 
 # required keys of objects in config.queues array come here:
 requiredQueueKeys = ["key", "qname"]
 
-class Config
+class RMConfig
 	default: () ->
 		def =
-			rrdtool: "rrdtool"
-			dbfolder: "./dbs/"
-			queue_default:
+			influx:
+				host: "127.0.0.1"
+				port: 8086
+				database: "rsmq_monitor"
+				username: process.env.DBUSER or null
+				password: process.env.DBPASS or null
+			queue_defaults:
 				host: "127.0.0.1"
 				port: 6390
 				ns: "rsmq"
@@ -21,26 +26,25 @@ class Config
 		return def
 	constructor: () ->
 		# load the local config if the file exists
-		console.log path.resolve( __dirname, "../../" )
 		try
-			_cnf = require path.resolve( __dirname, "../../", process.env.CONF or "config.json" )
+			_cnf = require path.resolve(__dirname, "../../", process.env.CONF or "config.json")
 		catch _err
 			throw _err unless err?.code is "MODULE_NOT_FOUND"
 
 		@config = extend true, @default(), _cnf or {}
 
 		unless _.isArray(@config.queues)
-			throw tools.error
-				msg: "config.queues must be an array"
-				name: "typeError"
+			throw errors.create "ETYPE",
+				identifier: "config.queues"
+				expected: "array"
 		for queue, i in @config.queues
 			# check existence of required keys
 			for requiredQueueKey in requiredQueueKeys
 				unless queue.hasOwnProperty(requiredQueueKey)
-					throw tools.error
-						msg: "missing property '#{requiredQueueKey}' in config.queues[#{i}]"
-						name: "missingQueueProperty"
-			@config.queues[i] = extend true, {}, @config.queue_default, queue
+					throw errors.create "EMISSINGPROPERTY",
+						property: requiredQueueKey
+						identifier: "config.queues[#{i}]"
+			@config.queues[i] = extend true, {}, @config.queue_defaults, queue
 		return
 
 
@@ -51,4 +55,4 @@ class Config
 		@config[name] = null if @config[name] is undefined
 		return @config[name]
 
-module.exports = new Config()
+module.exports = new RMConfig()

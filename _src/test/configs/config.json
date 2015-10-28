@@ -1,0 +1,22 @@
+{
+	"influx": {
+		"host": "10.0.0.1",
+		"port": 1234,
+		"database": "testdb",
+		"username": "user",
+		"password": "pass"
+	},
+
+	"queue_defaults": {
+		"host": "10.0.0.2",
+		"port": 4321,
+		"ns": "namespace",
+		"interval": 5
+	},
+
+	"queues": [
+		{"key": "queue1", "qname": "q1" },
+		{"key": "queue2", "qname": "q2", "interval": 10},
+		{"key": "queue3", "ns": "rsmq2", "qname": "q3", "host": "10.0.0.3", "port": 6379 }
+	]
+}
