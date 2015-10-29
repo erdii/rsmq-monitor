@@ -2,8 +2,8 @@ now = () -> Math.floor(Date.now()/1000)
 
 describe "devtesting", () ->
 	@timeout(10000000)
-	it "writePoints", (done) ->
-		influx = require "../../lib/influx-connector"
+	influx = require "../../lib/influx-connector"
+	it "writeStats", (done) ->
 		data =
 			queue1: [
 				{ time: now() - 15, count: 150, sent: 120000, recv: 119850 }
@@ -16,4 +16,14 @@ describe "devtesting", () ->
 		influx.writeStats data, () ->
 			done()
 			return
+
+	it "dropStats", (done) ->
+		influx.dropStats "queue1", (err) ->
+			if not err?
+				influx.dropStats "queue2", (err) ->
+					if not err?
+						done()
+					return
+			return
+		return
 	return

@@ -1,5 +1,5 @@
 # RSMQ-Monitor
-A tool to monitor one or more Redis Simple Message Queues on the same redis-server
+A tool to monitor one or more Redis Simple Message Queues
 
 ## Concept
 

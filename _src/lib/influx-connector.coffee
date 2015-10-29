@@ -46,7 +46,7 @@ class RMInfluxConnector
 					expected: "array of objects or object"
 
 		debug "writing stats to influx..."
-		@client.writeSeries data, {precision:'s'}, (err, resp) ->
+		@client.writeSeries data, {precision:'s'}, (err) ->
 			if err?
 				logErr err
 				cb(err)
@@ -54,6 +54,22 @@ class RMInfluxConnector
 			debug "success!"
 			cb()
 			return
+		return
+
+
+	dropStats: (key, cb) =>
+		@client.dropMeasurement key, (err, resp) ->
+			debug err, resp
+			if err?
+				# wtf?! dat bug...
+				if err.message is "database not open"
+					cb(null, resp)
+					return
+				# wtf is over
+				logErr err
+				cb(err)
+				return
+			cb(null, resp)
 		return
 
 module.exports = new RMInfluxConnector()
