@@ -51,6 +51,7 @@ module.exports = ( grunt ) ->
 				]
 				options:
 					github: true
+					commitMessage: "docs"
 
 		mochacli:
 			options:
