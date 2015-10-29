@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><title>_src/dev/applyarrtoarr</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="_src/dev/applyarrtoarr"><meta name="groc-project-path" content="_src/dev/applyarrtoarr.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">_src/dev/applyarrtoarr.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">anotherarr = [<span class="hljs-string">"lubb"</span>, <span class="hljs-string">"gluck"</span>, <span class="hljs-string">"puck"</span>]
+myarr = [<span class="hljs-string">"blubb"</span>]
+
+<span class="hljs-built_in">console</span>.log <span class="hljs-string">"myarr"</span>
+<span class="hljs-built_in">console</span>.dir myarr
+<span class="hljs-built_in">console</span>.log <span class="hljs-string">"+ anotherarr.slice(1):"</span>
+<span class="hljs-built_in">console</span>.dir anotherarr[<span class="hljs-number">1.</span>..]
+<span class="hljs-built_in">console</span>.log <span class="hljs-string">"="</span>
+
+Array.prototype.push.apply(myarr, anotherarr[<span class="hljs-number">1.</span>..])
+data = [myarr.join(<span class="hljs-string">':'</span>)]
+
+<span class="hljs-built_in">console</span>.dir myarr</div></div></div></div></body></html>

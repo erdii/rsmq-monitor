@@ -57,10 +57,10 @@ To configure all the systems a config.json has to be defined with the following 
 ....
 
 ### Influx-connector
-- **add**
-- **stats**
-- **graph**
-- **flush**
+- **writeStats**
+- **getStats**
+- **dropStats**
+
 
 ## Development
 TODO

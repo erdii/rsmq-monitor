@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">README.md</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="rsmq-monitor">RSMQ-Monitor</h1>
+<p>A tool to monitor one or more Redis Simple Message Queues on the same redis-server</p>
+<h2 id="concept">Concept</h2>
+<p>Multiple queues will be polled by a defined interval for their stats to generate a history over time of the following metrics:</p>
+<ul>
+<li><strong>count</strong> The current count of messages within the queue</li>
+<li><strong>new</strong> The count of messages the queue received during the last interval</li>
+<li><strong>processed</strong> The count of messages the queue could process during the last interval</li>
+</ul>
+<p>The System will be split into multiple modules to increase the stability.</p>
+<ul>
+<li><strong>Aggregator</strong>: A process that polls the queues and pushes the data into an InfluxDB instance (<a href="https://influxdb.com/">InfluxDB</a>)</li>
+<li><strong>Stats</strong>: A server that will query the database and returns a graph as an image or just the data.</li>
+</ul>
+<h2 id="install">install</h2>
+<p>TODO</p>
+<h2 id="config">Config</h2>
+<p>To configure all the systems a config.json has to be defined with the following settings.</p>
+<ul>
+<li><strong>influx</strong>: <em>( <code>Object</code> )</em>: The influx connection options<ul>
+<li><strong>host</strong>: <em>( <code>String</code> default: <code>127.0.0.1</code> )</em>: the InfluxDB host</li>
+<li><strong>port</strong>: <em>( <code>Number</code> default: <code>8086</code> )</em>: the InfluxDB http-API port</li>
+<li><strong>database</strong>: <em>( <code>String</code> default: <code>rsmq_monitor</code> )</em>: the DB name</li>
+<li><strong>username</strong>: <em>( <code>String</code> default: null)</em>: the DB username <em>(can also be set via envvar DBUSER)</em></li>
+<li><strong>password</strong>: <em>( <code>String</code> default: null)</em>: the DB password <em>(can also be set via envvar DBPASS)</em></li>
+</ul>
+</li>
+<li><strong>queue_defaults</strong>: <em>( <code>Object</code> )</em>: A default rsmq configuration<ul>
+<li><strong>queue_defaults.host</strong>: <em>( <code>String</code> default: <code>127.0.0.1</code> )</em>: The default host for all queues</li>
+<li><strong>queue_defaults.port</strong>: <em>( <code>Number</code> default: <code>6379</code> )</em>: The default port for all queues</li>
+<li><strong>queue_defaults.ns</strong>: <em>( <code>String</code> default: <code>rsmq</code> )</em>: The default namespace for all queues</li>
+<li><strong>queue_defaults.interval</strong>: <em>( <code>Number</code> default: <code>1</code> )</em>: the poll interval in seconds</li>
+</ul>
+</li>
+<li><strong>queues</strong>: <em>( <code>Object[]</code> )</em>:<ul>
+<li><strong>queues[].key</strong>: <em>( <code>String</code> <strong>required</strong> )</em>: the queues identifier that will be displayed with the stats</li>
+<li><strong>queues[].qname</strong>: <em>( <code>String</code> <strong>required</strong> )</em>: the queues qname on the rsmq server</li>
+<li><strong>queues[].host</strong>: <em>( <code>String</code> )</em>: the queues rsmq host <em>defaults to queue_defaults.host</em></li>
+<li><strong>queues[].port</strong>: <em>( <code>String</code> )</em>: the queues rsmq port <em>defaults to queue_defaults.port</em></li>
+<li><strong>queues[].ns</strong>: <em>( <code>String</code> )</em>: the queues rsmq namespace <em>defaults to queue_defaults.ns</em></li>
+<li><strong>queues[].interval</strong>: <em>( <code>Number</code>)</em>: the poll interval in seconds <em>defaults to queue_defaults.interval</em><br>TODO:  add additional retention settings</li>
+</ul>
+</li>
+</ul>
+<h2 id="run">run</h2>
+<h3 id="aggregator">Aggregator</h3>
+<p><code>node app/aggregator.js</code></p>
+<h3 id="stats">Stats</h3>
+<p><code>node app/stats.js</code></p>
+<h2 id="methods">Methods</h2>
+<h3 id="aggregator">Aggregator</h3>
+<p>....</p>
+<h3 id="influx-connector">Influx-connector</h3>
+<ul>
+<li><strong>writeStats</strong></li>
+<li><strong>getStats</strong></li>
+<li><strong>dropStats</strong></li>
+</ul>
+<h2 id="development">Development</h2>
+<p>TODO</p>
+<p>Start with <code>NODE_ENV=development DEBUG=rsmq* node-dev app/app.js</code></p></div></div></div></div></body></html>

@@ -1,18 +1,43 @@
-qconf = require "../queue.json"
+qconf = require "./queue.json"
 
 
 async = require "async"
 RedisSMQ = require "rsmq"
 rsmq = new RedisSMQ qconf.rsmq
+tools = require "../lib/tools"
 
 
-async.times 10, ((n, next) ->
-	rsmq.sendMessage { qname: qconf.qname, message: "#{n}. Message" }, next
-	return), ((err, resps) ->
-	if err?
-		console.log err
+send = (msg, cb) ->
+	rsmq.sendMessage { qname: qconf.qname, message: msg }, (err, resp) ->
+		if err?
+			console.log err
+			cb(err)
+			return
+
+		console.dir resp
+		cb(null)
+		return
+	return
+
+msg = (n, offset = 0) -> "#{n}:#{tools.now() - Math.floor(offset/1000)}"
+
+rand = (min, max) -> Math.floor((Math.random()*(max-min) + min)/10)*10
+
+startSending = () ->
+	n = 0
+	sendAfterTimeout = (err) ->
+		return if err?
+		n++
+
+		timeout = rand(50, 5000)
+		console.log "next msg in #{timeout}ms"
+		setTimeout((() ->
+			send msg(n, timeout), sendAfterTimeout
+			return
+		), timeout)
 		return
 
-	console.dir resps
-	process.exit(0)
-	return)
+	sendAfterTimeout()
+	return
+
+startSending()

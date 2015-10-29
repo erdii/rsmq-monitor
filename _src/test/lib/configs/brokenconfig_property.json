@@ -1,5 +1,4 @@
 {
-	"dbfolder": "/var/rrd/",
 	"queues": [
 		{"keyismissing": "queue1", "qname": "q1" },
 		{"key": "queue2", "qname": "q2", "interval": 10},

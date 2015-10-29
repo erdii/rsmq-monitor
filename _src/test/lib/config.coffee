@@ -1,5 +1,4 @@
 should = require "should"
-
 describe "load valid config", () ->
 	it "validating processed config object", (done) ->
 		expected =
@@ -19,7 +18,7 @@ describe "load valid config", () ->
 				{ key: "queue2", qname: "q2", host: "10.0.0.2", port: 4321, ns: "namespace", interval: 10 }
 				{ key: "queue3", qname: "q3", host: "10.0.0.3", port: 6379, ns: "rsmq2", interval: 5 }
 			]
-		cnf = require "../lib/config"
+		cnf = require "../../lib/config"
 		should.deepEqual(cnf.get(), expected)
 		done()
 		return

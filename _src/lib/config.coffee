@@ -45,6 +45,8 @@ class RMConfig
 						property: requiredQueueKey
 						identifier: "config.queues[#{i}]"
 			@config.queues[i] = extend true, {}, @config.queue_defaults, queue
+
+		debug @config
 		return
 
 

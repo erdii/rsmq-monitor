@@ -1,4 +1,4 @@
-qconf = require "../queue.json"
+qconf = require "./queue.json"
 
 
 
@@ -8,5 +8,6 @@ rsmq = new RedisSMQ qconf.rsmq
 
 rsmq.createQueue { qname: qconf.qname }, (err, resp) ->
 	if resp is 1
-		console.log "#{queuename} created!"
+		console.log "#{qconf.qname} created!"
+	process.exit(0)
 	return

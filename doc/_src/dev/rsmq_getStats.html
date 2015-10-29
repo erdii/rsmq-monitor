@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><title>_src/dev/rsmq_getStats</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="_src/dev/rsmq_getStats"><meta name="groc-project-path" content="_src/dev/rsmq_getStats.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">_src/dev/rsmq_getStats.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">RedisSMQ = <span class="hljs-built_in">require</span> <span class="hljs-string">"rsmq"</span>
+tools = <span class="hljs-built_in">require</span> <span class="hljs-string">"../lib/tools"</span>
+
+
+qconf = <span class="hljs-built_in">require</span> <span class="hljs-string">"./queue.json"</span>
+<span class="hljs-built_in">console</span>.dir qconf
+rsmq = <span class="hljs-keyword">new</span> RedisSMQ qconf.rsmq
+<span class="hljs-function">
+
+<span class="hljs-title">monitor</span> = <span class="hljs-params">()</span> -&gt;</span>
+	rsmq.getQueueAttributes {<span class="hljs-attribute">qname</span>: qconf.qname}, <span class="hljs-function"><span class="hljs-params">(err, stats)</span> -&gt;</span>
+		<span class="hljs-keyword">if</span> err?
+			<span class="hljs-built_in">console</span>.error err
+			<span class="hljs-keyword">return</span>
+
+		<span class="hljs-built_in">console</span>.log tools.now() + <span class="hljs-string">":"</span>
+		<span class="hljs-built_in">console</span>.log <span class="hljs-string">"in queue: <span class="hljs-subst">#{stats.msgs}</span>"</span>
+		<span class="hljs-built_in">console</span>.log <span class="hljs-string">"total sent: <span class="hljs-subst">#{stats.totalsent}</span>"</span>
+		<span class="hljs-built_in">console</span>.log <span class="hljs-string">"total received: <span class="hljs-subst">#{stats.totalrecv}</span>"</span>
+		<span class="hljs-built_in">console</span>.log <span class="hljs-string">"-----------------------------------"</span>
+		<span class="hljs-keyword">return</span>
+	<span class="hljs-keyword">return</span>
+
+setInterval(monitor, <span class="hljs-number">2000</span>)</div></div></div></div></body></html>

@@ -33,6 +33,24 @@ module.exports = ( grunt ) ->
 		clean:
 			app:
 				src: ["app/*"]
+			doc:
+				src: ["doc/*"]
+
+		groc:
+			app:
+				src: [
+					"_src/**/*"
+					"README.md"
+				]
+				options:
+					out: "doc/"
+			github:
+				src: [
+					"_src/**/*"
+					"README.md"
+				]
+				options:
+					github: true
 
 		mochacli:
 			options:
@@ -40,31 +58,37 @@ module.exports = ( grunt ) ->
 				reporter: "spec"
 				bail: true
 			brokenconfig_type:
-				src: ["app/test/brokenconfig_type.js"]
+				src: ["app/test/lib/brokenconfig_type.js"]
 				options:
 					env:
-						CONF: "./app/test/configs/brokenconfig_type.json"
+						CONF: "./app/test/lib/configs/brokenconfig_type.json"
 			brokenconfig_property:
-				src: ["app/test/brokenconfig_property.js"]
+				src: ["app/test/lib/brokenconfig_property.js"]
 				options:
 					env:
-						CONF: "./app/test/configs/brokenconfig_property.json"
+						CONF: "./app/test/lib/configs/brokenconfig_property.json"
 			config:
-				src: ["app/test/config.js"]
+				src: ["app/test/lib/config.js"]
 				options:
 					env:
-						CONF: "./app/test/configs/config.json"
+						CONF: "./app/test/lib/configs/config.json"
+			influx:
+				src: ["app/test/lib/influx-connector.js"]
+				options:
+					env:
+						CONF: "./app/test/lib/configs/config_influx.json"
 
 	# Load npm modules
 	grunt.loadNpmTasks "grunt-contrib-clean"
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-copy"
 	grunt.loadNpmTasks "grunt-contrib-watch"
+	grunt.loadNpmTasks "grunt-groc"
 	grunt.loadNpmTasks "grunt-mocha-cli"
 	grunt.loadNpmTasks "grunt-newer"
 
 
 	grunt.registerTask "default", ["watch"]
-	grunt.registerTask "bwatch", ["build", "watch"]
-	grunt.registerTask "build", [ "clean", "coffee", "copy"]
-	grunt.registerTask "mocha", ["mochacli"]
+	grunt.registerTask "bwatch", ["build", "groc:app", "watch"]
+	grunt.registerTask "build", [ "clean", "coffee", "copy", "groc:app"]
+	grunt.registerTask "test", ["mochacli"]
