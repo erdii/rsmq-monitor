@@ -1,6 +1,6 @@
 now = () -> Math.floor(Date.now()/1000)
 
-describe "devtesting", () ->
+describe "Testing Influx-connector module", () ->
 	@timeout(10000000)
 	influx = require "../../lib/influx-connector"
 	it "writeStats", (done) ->
@@ -13,9 +13,27 @@ describe "devtesting", () ->
 			]
 			queue2: { time: now(), count: 2, sent: 12, recv: 10 }
 
-		influx.writeStats data, () ->
-			done()
+		influx.writeStats data, (err) ->
+			console.dir err
+			if err?.message.indexOf("database not found") >= 0
+				influx.createDatabase "rsmq_monitor", (err) ->
+					if not err?
+						influx.writeStats data, (err) ->
+							console.log err if err?
+							done()
+			else
+				done()
 			return
+
+
+	it "getStats", (done) ->
+		influx.getStats "queue1", (err, resp) ->
+			if not err?
+				if resp?
+					resp.length.should.be.exactly(4)
+					done()
+		return
+
 
 	it "dropStats", (done) ->
 		influx.dropStats "queue1", (err) ->

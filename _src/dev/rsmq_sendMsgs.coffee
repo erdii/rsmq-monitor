@@ -29,7 +29,7 @@ startSending = () ->
 		return if err?
 		n++
 
-		timeout = rand(50, 5000)
+		timeout = rand(10, 50)
 		console.log "next msg in #{timeout}ms"
 		setTimeout((() ->
 			send msg(n, timeout), sendAfterTimeout

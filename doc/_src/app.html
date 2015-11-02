@@ -1,50 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><title>_src/app</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="_src/app"><meta name="groc-project-path" content="_src/app.coffee"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path">_src/app.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">{log, logErr, debug} = ( <span class="hljs-built_in">require</span>(<span class="hljs-string">"./lib/logger"</span>) )(<span class="hljs-string">"rsmq-monitor:app"</span>)
-path = <span class="hljs-built_in">require</span> <span class="hljs-string">"path"</span>
-RedisSMQ = <span class="hljs-built_in">require</span> <span class="hljs-string">"rsmq"</span>
-RRD = <span class="hljs-built_in">require</span> <span class="hljs-string">"./lib/rrd"</span>
-tools = <span class="hljs-built_in">require</span> <span class="hljs-string">"./lib/tools"</span>
 
-rrdpath = <span class="hljs-string">"/var/rrd"</span>
-filename = <span class="hljs-string">"<span class="hljs-subst">#{rrdpath}</span>/rsmq-monitor.rrd"</span>
-picname = <span class="hljs-string">"<span class="hljs-subst">#{rrdpath}</span>/rsmq-pic.png"</span>
-
-test_rrd = <span class="hljs-keyword">new</span> RRD(filename)
-
-rsmq = <span class="hljs-keyword">new</span> RedisSMQ
-	<span class="hljs-attribute">hosthost</span>: <span class="hljs-string">"127.0.0.1"</span>
-	<span class="hljs-attribute">port</span>: <span class="hljs-number">6379</span>
-	<span class="hljs-attribute">ns</span>: <span class="hljs-string">"rsmq"</span>
-
-step = <span class="hljs-number">1</span>
-interval = step*<span class="hljs-number">1000</span>
-creation = tools.now() - <span class="hljs-number">10</span>
-
-test_rrd.create step, creation, <span class="hljs-function"><span class="hljs-params">(err, created_filename)</span> -&gt;</span>
-	<span class="hljs-keyword">if</span> err?
-		logErr err
-		<span class="hljs-keyword">return</span>
-
-	debug filename, created_filename
-<span class="hljs-function">
-	<span class="hljs-title">startUpdating</span> = <span class="hljs-params">()</span> -&gt;</span>
-<span class="hljs-function">		<span class="hljs-title">update</span> = <span class="hljs-params">()</span> -&gt;</span>
-			rsmq.getQueueAttributes <span class="hljs-string">"test"</span>, <span class="hljs-function"><span class="hljs-params">(err, resp)</span> -&gt;</span>
-				<span class="hljs-keyword">if</span> err?
-					<span class="hljs-built_in">console</span>.log err
-					<span class="hljs-keyword">return</span>
-
-				test_rrd.update tools.now(), <span class="hljs-string">"mc:rcv:sent"</span>, [resp.msgs, resp.totalrecv, resp.totalsent], <span class="hljs-function"><span class="hljs-params">(err)</span> -&gt;</span>
-					<span class="hljs-keyword">if</span> err?
-						logErr err
-						<span class="hljs-keyword">return</span>
-
-					process.stdout.write <span class="hljs-string">"."</span>
-					<span class="hljs-keyword">return</span>
-				<span class="hljs-keyword">return</span>
-			<span class="hljs-keyword">return</span>
-
-		setInterval(update, interval)
-		<span class="hljs-keyword">return</span>
-
-	startUpdating()
-	<span class="hljs-keyword">return</span></div></div></div></div></body></html>
+influxconn = <span class="hljs-built_in">require</span> <span class="hljs-string">"./lib/Influx-connector"</span>
+rsmqconn = <span class="hljs-built_in">require</span> <span class="hljs-string">"./lib/rsmq-connector"</span>
+tools = <span class="hljs-built_in">require</span> <span class="hljs-string">"./lib/tools"</span></div></div></div></div></body></html>

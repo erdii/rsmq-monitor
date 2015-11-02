@@ -3,9 +3,13 @@
 		"username": "rsmq_monitor",
 		"password": "rsmq_monitor"
 	},
+	"queue_defaults": {
+		"ns": "rmon"
+	},
 	"queues": [
-		{"key": "queue1", "qname": "q1"},
-		{"key": "queue2", "qname": "q2"},
-		{"key": "queue3", "qname": "q3"}
+		{"key": "queue1", "qname": "mon1"},
+		{"key": "queue2", "qname": "mon2", "ns": "rmon2"},
+		{"key": "queue3", "qname": "mon3"},
+		{"key": "queue4", "qname": "mon4"}
 	]
 }

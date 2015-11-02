@@ -42,27 +42,6 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
               "foldPrefix": "^",
               "name": "CoffeeScript"
             },
-            "sourcePath": "/Users/joshua/Projects/rsmq-monitor/_src/aggregator.coffee",
-            "projectPath": "_src/aggregator.coffee",
-            "targetPath": "_src/aggregator",
-            "pageTitle": "_src/aggregator",
-            "title": "aggregator"
-          },
-          "depth": 2
-        }, {
-          "type": "file",
-          "data": {
-            "language": {
-              "nameMatchers": [".coffee", "Cakefile"],
-              "pygmentsLexer": "coffee-script",
-              "highlightJS": "coffeescript",
-              "multiLineComment": ["###*", " *", " ###", "###", "#", "###", "###*", "#", "###"],
-              "strictMultiLineEnd": false,
-              "singleLineComment": ["#"],
-              "ignorePrefix": "}",
-              "foldPrefix": "^",
-              "name": "CoffeeScript"
-            },
             "sourcePath": "/Users/joshua/Projects/rsmq-monitor/_src/app.coffee",
             "projectPath": "_src/app.coffee",
             "targetPath": "_src/app",
@@ -312,6 +291,27 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                 "targetPath": "_src/lib/rsmq-connector",
                 "pageTitle": "_src/lib/rsmq-connector",
                 "title": "rsmq-connector"
+              },
+              "depth": 3
+            }, {
+              "type": "file",
+              "data": {
+                "language": {
+                  "nameMatchers": [".coffee", "Cakefile"],
+                  "pygmentsLexer": "coffee-script",
+                  "highlightJS": "coffeescript",
+                  "multiLineComment": ["###*", " *", " ###", "###", "#", "###", "###*", "#", "###"],
+                  "strictMultiLineEnd": false,
+                  "singleLineComment": ["#"],
+                  "ignorePrefix": "}",
+                  "foldPrefix": "^",
+                  "name": "CoffeeScript"
+                },
+                "sourcePath": "/Users/joshua/Projects/rsmq-monitor/_src/lib/sanitizer.coffee",
+                "projectPath": "_src/lib/sanitizer.coffee",
+                "targetPath": "_src/lib/sanitizer",
+                "pageTitle": "_src/lib/sanitizer",
+                "title": "sanitizer"
               },
               "depth": 3
             }, {

@@ -1,50 +1,46 @@
 {log, logErr, debug} = ( require("./lib/logger") )("rsmq-monitor:app")
-path = require "path"
-RedisSMQ = require "rsmq"
-RRD = require "./lib/rrd"
+
+_ = require "lodash"
+config = require "./lib/config"
+influxconn = require "./lib/influx-connector"
+rsmqconn = require "./lib/rsmq-connector"
 tools = require "./lib/tools"
 
-rrdpath = "/var/rrd"
-filename = "#{rrdpath}/rsmq-monitor.rrd"
-picname = "#{rrdpath}/rsmq-pic.png"
+queues = config.get("queues")
+shards = _.groupBy queues, (q) -> "#{q.host}:#{q.port}:#{q.ns}"
 
-test_rrd = new RRD(filename)
+rsmqConnectors = {}
+for k, v of shards
+	rsmqopts = _.pick(v[0], ["host", "port", "ns"])
+	rsmqConnectors[k] = new rsmqconn(rsmqopts)
 
-rsmq = new RedisSMQ
-	hosthost: "127.0.0.1"
-	port: 6379
-	ns: "rsmq"
 
-step = 1
-interval = step*1000
-creation = tools.now() - 10
-
-test_rrd.create step, creation, (err, created_filename) ->
-	if err?
-		logErr err
-		return
-
-	debug filename, created_filename
-
-	startUpdating = () ->
-		update = () ->
-			rsmq.getQueueAttributes "test", (err, resp) ->
-				if err?
-					console.log err
+queryStats = () ->
+	debug "queryStats"
+	for shardspace, shardqueues of shards
+		do (shardspace, shardqueues) ->
+			for shardqueue in shardqueues
+				do (shardqueue) ->
+					debug "\t#{shardqueue.ns}:#{shardqueue.qname}"
+					rsmqConnectors[shardspace].getStats shardqueue.qname, (err, resp) ->
+						if err?
+							process.exit(1)
+						resp.qname = shardqueue.qname
+						resp.key = shardqueue.key
+						resp.ns = shardqueue.ns
+						debug resp
+						data = {}
+						data[shardqueue.key] =
+							time: tools.now()
+							count: resp.msgs
+							sent: resp.totalsent
+							recv: resp.totalrecv
+						influxconn.writeStats data, (err, resp) ->
+							if err?
+								process.exit(1)
+							return
 					return
-
-				test_rrd.update tools.now(), "mc:rcv:sent", [resp.msgs, resp.totalrecv, resp.totalsent], (err) ->
-					if err?
-						logErr err
-						return
-
-					process.stdout.write "."
-					return
-				return
 			return
-
-		setInterval(update, interval)
-		return
-
-	startUpdating()
 	return
+
+setInterval queryStats, 1000

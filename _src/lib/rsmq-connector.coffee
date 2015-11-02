@@ -2,16 +2,20 @@
 RedisSMQ = require "rsmq"
 tools = require "./tools"
 
-class RMConnector
-	constructor: () ->
-		@rsmq = new RedisSMQ
-			host: "127.0.0.1"
-			port: 6379
-			ns: qconf.ns
+class RMRConnector
+	constructor: (options) ->
+		@options = options
+		@rsmq = new RedisSMQ(options)
 		return
 
 	getStats: (qname, cb) =>
-		rsmq.getQueueAttributes {qname: qname}, cb
+		@rsmq.getQueueAttributes {qname: qname}, (err, resp) =>
+			if err?
+				logErr(@options, qname, err)
+				cb(err)
+				return
+
+			cb(null, resp)
 		return
 
-module.exports = new RMConnector()
+module.exports = RMRConnector

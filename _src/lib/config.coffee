@@ -8,6 +8,8 @@ tools = require "./tools"
 # required keys of objects in config.queues array come here:
 requiredQueueKeys = ["key", "qname"]
 
+_config = {}
+
 class RMConfig
 	default: () ->
 		def =
@@ -19,7 +21,7 @@ class RMConfig
 				password: process.env.DBPASS or null
 			queue_defaults:
 				host: "127.0.0.1"
-				port: 6390
+				port: 6379
 				ns: "rsmq"
 				interval: 1
 			queues: []
@@ -31,30 +33,30 @@ class RMConfig
 		catch _err
 			throw _err unless err?.code is "MODULE_NOT_FOUND"
 
-		@config = extend true, @default(), _cnf or {}
+		_config = extend true, @default(), _cnf or {}
 
-		unless _.isArray(@config.queues)
+		unless _.isArray(_config.queues)
 			throw errors.create "ETYPE",
 				identifier: "config.queues"
 				expected: "array"
-		for queue, i in @config.queues
+		for queue, i in _config.queues
 			# check existence of required keys
 			for requiredQueueKey in requiredQueueKeys
 				unless queue.hasOwnProperty(requiredQueueKey)
 					throw errors.create "EMISSINGPROPERTY",
 						property: requiredQueueKey
 						identifier: "config.queues[#{i}]"
-			@config.queues[i] = extend true, {}, @config.queue_defaults, queue
+			_config.queues[i] = extend true, {}, _config.queue_defaults, queue
 
-		debug @config
+		debug _config
 		return
 
 
 	# return config subkey "name" or complete config if no name specified
 	# defaults all undefined keys to null
 	get: (name = "") =>
-		return @config if name is ""
-		@config[name] = null if @config[name] is undefined
-		return @config[name]
+		return _config if name is ""
+		_config[name] = null if _config[name] is undefined
+		return _config[name]
 
 module.exports = new RMConfig()
