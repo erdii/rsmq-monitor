@@ -15,6 +15,7 @@ for k, v of shards
 	rsmqConnectors[k] = new rsmqconn(rsmqopts)
 
 
+
 queryStats = () ->
 	debug "queryStats"
 	for shardspace, shardqueues of shards

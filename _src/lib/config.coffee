@@ -1,4 +1,3 @@
-{ log, logErr, debug } = require("./logger")("rsmq-monitor:lib:config")
 _ = require "lodash"
 errors = require "./errors"
 extend = require "extend"
@@ -6,11 +5,11 @@ path = require "path"
 tools = require "./tools"
 
 # required keys of objects in config.queues array come here:
-requiredQueueKeys = ["key", "qname"]
+requiredQueueKeys = ["qname"]
 
 _config = {}
 
-class RMConfig
+class RMConfig extends require("./base")
 	default: () ->
 		def =
 			influx:
@@ -24,9 +23,10 @@ class RMConfig
 				port: 6379
 				ns: "rsmq"
 				interval: 1
-			queues: []
+			queues: {}
 		return def
 	constructor: () ->
+		super
 		# load the local config if the file exists
 		try
 			_cnf = require path.resolve(__dirname, "../../", process.env.CONF or "config.json")
@@ -35,20 +35,18 @@ class RMConfig
 
 		_config = extend true, @default(), _cnf or {}
 
-		unless _.isArray(_config.queues)
+		unless _.isObject(_config.queues)
 			throw errors.create "ETYPE",
 				identifier: "config.queues"
-				expected: "array"
-		for queue, i in _config.queues
+				expected: "object"
+		for key, queue of _config.queues
 			# check existence of required keys
 			for requiredQueueKey in requiredQueueKeys
 				unless queue.hasOwnProperty(requiredQueueKey)
 					throw errors.create "EMISSINGPROPERTY",
 						property: requiredQueueKey
-						identifier: "config.queues[#{i}]"
-			_config.queues[i] = extend true, {}, _config.queue_defaults, queue
-
-		debug _config
+						identifier: "config.queues[#{key}]"
+			_config.queues[key] = extend true, {}, _config.queue_defaults, queue
 		return
 
 

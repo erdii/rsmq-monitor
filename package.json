@@ -17,7 +17,7 @@
     "grunt-contrib-coffee": "^0.13.0",
     "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-groc": "erdii/grunt-groc#dep_forked_groc",
+    "grunt-docker": "0.0.10",
     "grunt-mocha-cli": "^2.0.0",
     "grunt-newer": "^1.1.1",
     "should": "^7.1.1"

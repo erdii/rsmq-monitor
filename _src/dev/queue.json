@@ -2,5 +2,5 @@
 	"rsmq": {
 		"ns": "rmon"
 	},
-	"qname": "mon1"
+	"qnames": ["mon1", "mon3", "mon4"]
 }

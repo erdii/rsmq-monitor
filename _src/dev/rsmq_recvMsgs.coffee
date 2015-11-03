@@ -6,8 +6,8 @@ rsmq = new RedisSMQ qconf.rsmq
 tools = require "../lib/tools"
 
 
-receive = (cb) ->
-	rsmq.receiveMessage { qname: qconf.qname }, (err, resp) ->
+receive = (i, cb) ->
+	rsmq.receiveMessage { qname: qconf.qnames[i] }, (err, resp) ->
 		if err?
 			console.log err
 			cb(err)
@@ -22,8 +22,8 @@ receive = (cb) ->
 	return
 
 
-del = (id, cb) ->
-	rsmq.deleteMessage { qname: qconf.qname, id: id }, (err, resp) ->
+del = (i, id, cb) ->
+	rsmq.deleteMessage { qname: qconf.qnames[i], id: id }, (err, resp) ->
 		if err?
 			console.log err
 			cb(err)
@@ -40,15 +40,15 @@ del = (id, cb) ->
 rand = (min, max) -> Math.floor((Math.random()*(max-min) + min)/10)*10
 
 
-startReceiving = () ->
+startReceiving = (i) ->
 	receiveAfterTimeout = () ->
-		timeout = rand(5, 100)
+		timeout = rand(5, 25)
 		console.log "next msg in #{timeout}ms"
 		setTimeout((() ->
-			receive (err, resp) ->
+			receive i, (err, resp) ->
 				return if err?
-				if resp?.id?
-					del resp.id, (err, success) ->
+				if resp?.id? and timeout > 7
+					del i, resp.id, (err, success) ->
 						return if err?
 						console.log "id" if not success
 						receiveAfterTimeout()
@@ -62,4 +62,6 @@ startReceiving = () ->
 	receiveAfterTimeout()
 	return
 
-startReceiving()
+console.dir qconf.qnames
+for queue,i in qconf.qnames
+	startReceiving(i)

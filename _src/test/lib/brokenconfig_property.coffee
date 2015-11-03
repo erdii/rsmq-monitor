@@ -5,7 +5,7 @@ describe "load corrupted config", () ->
 			require "../../lib/config"
 			return),
 			((err) ->
-				if err instanceof Error and /property/.test(err) and /key/.test(err)
+				if err instanceof Error and /property/.test(err) and /qname/.test(err)
 					done()
 					return true
 				return)

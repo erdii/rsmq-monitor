@@ -7,8 +7,8 @@ rsmq = new RedisSMQ qconf.rsmq
 tools = require "../lib/tools"
 
 
-send = (msg, cb) ->
-	rsmq.sendMessage { qname: qconf.qname, message: msg }, (err, resp) ->
+send = (msg, i, cb) ->
+	rsmq.sendMessage { qname: qconf.qnames[i], message: msg }, (err, resp) ->
 		if err?
 			console.log err
 			cb(err)
@@ -23,16 +23,16 @@ msg = (n, offset = 0) -> "#{n}:#{tools.now() - Math.floor(offset/1000)}"
 
 rand = (min, max) -> Math.floor((Math.random()*(max-min) + min)/10)*10
 
-startSending = () ->
+startSending = (i) ->
 	n = 0
 	sendAfterTimeout = (err) ->
-		return if err?
+		process.exit(1) if err?
 		n++
 
 		timeout = rand(10, 50)
 		console.log "next msg in #{timeout}ms"
 		setTimeout((() ->
-			send msg(n, timeout), sendAfterTimeout
+			send(msg(n, timeout), i, sendAfterTimeout)
 			return
 		), timeout)
 		return
@@ -40,4 +40,7 @@ startSending = () ->
 	sendAfterTimeout()
 	return
 
-startSending()
+console.dir qconf.qnames
+for queue,i in qconf.qnames
+	console.log "#{i}: #{queue}"
+	startSending(i)

@@ -36,7 +36,7 @@ module.exports = ( grunt ) ->
 			doc:
 				src: ["doc/*"]
 
-		groc:
+		docker:
 			app:
 				src: [
 					"_src/**/*"
@@ -44,14 +44,6 @@ module.exports = ( grunt ) ->
 				]
 				options:
 					out: "doc/"
-			github:
-				src: [
-					"_src/**/*"
-					"README.md"
-				]
-				options:
-					github: true
-					commitMessage: "docs"
 
 		mochacli:
 			options:
@@ -84,12 +76,12 @@ module.exports = ( grunt ) ->
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-copy"
 	grunt.loadNpmTasks "grunt-contrib-watch"
-	grunt.loadNpmTasks "grunt-groc"
+	grunt.loadNpmTasks "grunt-docker"
 	grunt.loadNpmTasks "grunt-mocha-cli"
 	grunt.loadNpmTasks "grunt-newer"
 
 
 	grunt.registerTask "default", ["watch"]
-	grunt.registerTask "bwatch", ["build", "groc:app", "watch"]
-	grunt.registerTask "build", [ "clean", "coffee", "copy", "groc:app"]
+	grunt.registerTask "bwatch", ["build", "watch"]
+	grunt.registerTask "build", [ "clean", "coffee", "copy", "docker"]
 	grunt.registerTask "test", ["mochacli"]

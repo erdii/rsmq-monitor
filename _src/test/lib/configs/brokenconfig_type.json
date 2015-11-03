@@ -1,5 +1,3 @@
 {
-	"queues": {
-		"bla": "bla"
-	}
+	"queues": "imAstring!"
 }

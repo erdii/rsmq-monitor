@@ -6,10 +6,10 @@
 	"queue_defaults": {
 		"ns": "rmon"
 	},
-	"queues": [
-		{"key": "queue1", "qname": "mon1"},
-		{"key": "queue2", "qname": "mon2", "ns": "rmon2"},
-		{"key": "queue3", "qname": "mon3"},
-		{"key": "queue4", "qname": "mon4"}
-	]
+	"queues": {
+		"queue1": {"qname": "mon1"},
+		"queue2": {"qname": "mon2", "ns": "rmon2"},
+		"queue3": {"qname": "mon3"},
+		"queue4": {"qname": "mon4"}
+	}
 }
