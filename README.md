@@ -1,4 +1,4 @@
-# RSMQ-Monitor
+  # RSMQ-Monitor
 A tool to monitor one or more Redis Simple Message Queues
 
 ## Concept
@@ -6,8 +6,8 @@ A tool to monitor one or more Redis Simple Message Queues
 Multiple queues will be polled by a defined interval for their stats to generate a history over time of the following metrics:
 
  - **count** The current count of messages within the queue
- - **new** The count of messages the queue received during the last interval
- - **processed** The count of messages the queue could process during the last interval
+ - **received** The count of messages the queue received
+ - **sent** The count of messages the queue could process
 
 The System will be split into multiple modules to increase the stability.
 
@@ -49,17 +49,92 @@ To configure all the systems a config.json has to be defined with the following 
 
 ### Stats
 
-`node app/stats.js`
-
 ## Methods
+---
+### REST
+- **listQueues**
+  ```
+  GET /api/v1/list
 
-### Aggregator
-....
-
+  Content-Type: application/json
+  Response: {
+    keys: ["key1", "key2", ...]
+  }
+  ```
+ All methods below have the following (optional) QueryParams: ?start=bla&end=blubb&group=xy
+- **getAllStats**
+  ```
+  GET /api/v1/:KEY
+  Content-Type: application/json
+  Response:
+  {
+    start: 1446246813
+    end: 1446646913
+    group: "5m"
+    stats: [
+      { time: 1446246813, count: 112, recv: 13023, sent: 12911 },
+      { time: 1446247113, count: 0, recv: 13023, sent: 13023 },
+      { time: 1446247413, count: 45, recv: 13068, sent: 13023 },
+      ...
+    ]
+  }
+  ```
+- **getCount**
+  ```
+  GET /api/v1/:KEY/count
+  Content-Type: application/json
+  Response:
+  {
+    start: 1446246813
+    end: 1446646913
+    group: "5m"
+    stats: [
+      { time: t, count: x },
+      { time: t, count: x },
+      { time: t, count: x },
+      ...
+    ]
+  }
+  ```
+- **getReceived**
+  ```
+  GET /api/v1/:KEY/recv
+  Content-Type: application/json
+  Response:
+  {
+    start: 1446246813
+    end: 1446646913
+    group: "5m"
+    stats: [
+      { time: t, recv: y },
+      { time: t, recv: y },
+      { time: t, recv: y },
+      ...
+    ]
+  }
+  ```
+- **getSent**
+  ```
+  GET /api/v1/:KEY/sent
+  Content-Type: application/json
+  Response:
+  {
+    start: 1446246813483
+    end: 1446646913483
+    group: "5m"
+    stats: [
+      { time: t, sent: z },
+      { time: t, sent: z },
+      { time: t, sent: z },
+      ...
+    ]
+  }
+  ```
 ### Influx-connector
 - **writeStats**
 - **getStats**
 - **dropStats**
+- **createDatabase**
 
 
 ## Development

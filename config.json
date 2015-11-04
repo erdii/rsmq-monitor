@@ -7,9 +7,12 @@
 		"ns": "rmon"
 	},
 	"queues": {
-		"queue1": {"qname": "mon1", "interval": 5},
+		"queue1": {"qname": "mon1"},
 		"queue2": {"qname": "mon2", "ns": "rmon2"},
-		"queue3": {"qname": "mon3"},
+		"queue3": {"qname": "mon3", "interval": 5},
 		"queue4": {"qname": "mon4"}
+	},
+	"rest": {
+		"port": 1337
 	}
 }

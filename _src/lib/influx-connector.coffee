@@ -57,25 +57,37 @@ class RMInfluxConnector extends require("./base")
 			cb = opts
 			opts = null
 
-		if opts?
-			if opts.last?
-				querySuffix = " WHERE time > now() - #{tools.sanitize(opts.last)}"
-			else if opts.from?
-				if opts.until?
-					querySuffix = " WHERE time > '#{tools.sanitize(opts.from)}' AND time < '#{tools.sanitize(opts.until)}'"
-				else
-					querySuffix = " WHERE time > '#{tools.sanitize(opts.from)}'"
-		else
-			querySuffix = " WHERE time > now() - 24h"
+		queryInfix = "count, DERIVATIVE()"
 
+		if opts?
+			if opts.start? and opts.end?
+				querySuffix = "WHERE time > '#{tools.sanitize(opts.from)}' AND time < '#{tools.sanitize(opts.end)}'"
+			else
+				if opts.start?
+					# querySuffix = "WHERE time > now() - #{tools.sanitize(opts.end)}"
+					querySuffix = "WHERE time > '#{tools.sanitize(opts.start)}'"
+				else if opts.end?
+					querySuffix = "WHERE time < '#{tools.sanitize(opts.start)}'"
+				else
+					querySuffix = "WHERE time > now() - 24h"
+			if opts.group?
+				querySuffix += " GROUP BY #{opts.group}"
+				queryInfix = "MEAN(count) as mCount,MEAN(received)"
+		else
+			querySuffix = "WHERE time > now() - 24h"
+		# <-----------
+		# <-----------
+		# <-----------
+		# <-----------
 		@debug querySuffix
-		@client.query "SELECT * FROM #{tools.sanitize(key)}", (err, resp) =>
+		@client.query "SELECT #{queryInfix} FROM #{tools.sanitize(key)} #{querySuffix}", (err, resp) =>
 			if err?
 				@logErr(err)
 				cb(err)
 				return
 
 			# TODO check resp
+			@debug resp
 			@debug resp[0]
 			cb(null, resp[0])
 			return
@@ -100,8 +112,6 @@ class RMInfluxConnector extends require("./base")
 
 	createDatabase: (name, cb) =>
 		@client.createDatabase name, (err, resp) =>
-
-
 			cb(null, resp)
 		return
 
