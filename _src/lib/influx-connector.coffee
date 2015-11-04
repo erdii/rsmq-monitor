@@ -41,13 +41,11 @@ class RMInfluxConnector extends require("./base")
 					expected: "array of objects or object"
 				return
 
-		@debug "writing stats to influx..."
 		@client.writeSeries data, {precision:'s'}, (err) =>
 			if err?
 				@logErr(err)
 				cb(err)
 				return
-			@debug "success!"
 			cb()
 			return
 		return
@@ -102,10 +100,7 @@ class RMInfluxConnector extends require("./base")
 
 	createDatabase: (name, cb) =>
 		@client.createDatabase name, (err, resp) =>
-			if err?
-				@logErr(err)
-				cb(err)
-				return
+
 
 			cb(null, resp)
 		return

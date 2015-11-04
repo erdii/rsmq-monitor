@@ -1,0 +1,12 @@
+{
+	"influx": {
+		"username": "rsmq_monitor",
+		"password": "rsmq_monitor"
+	},
+	"queue_defaults": {
+		"ns": "rmon"
+	},
+	"queues": {
+		"queue1": {"qname": "mon1"}
+	}
+}

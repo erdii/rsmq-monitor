@@ -15,6 +15,11 @@ class RMAggregator extends require("./lib/base")
 			@initWorker()
 		return
 
+
+
+	####################
+	# MASTER FUNCTIONS #
+	####################
 	initMaster: () =>
 		@debug config.get()
 		@debug "MASTER"
@@ -45,8 +50,14 @@ class RMAggregator extends require("./lib/base")
 
 	respawnWorkers: () =>
 		for key, queue of @queues
-			@workers[key] = cluster.fork({QKEY: key}) unless @workers[key]?
+			@workers[key] = cluster.fork({QKEY: key}) unless @workers[key]? and not @workers[key].isDead()
 		return
+
+
+
+	####################
+	# WORKER FUNCTIONS #
+	####################
 
 	initWorker: () =>
 		@QKEY = process.env.QKEY
@@ -54,25 +65,19 @@ class RMAggregator extends require("./lib/base")
 		@localconf = config.get("queues")?[@QKEY]
 		@rsmq = new rsmqconn(@localconf)
 
-		setTimeout((() =>
-			@work()
-			return), 500)
-
-		# Debug: kill the worker after awhile so we see if it respawns
-		# kill = () ->
-		# 	process.exit(1)
-		# 	return
-		# setTimeout(kill, tools.rand(1000, 5000))
+		@work()
 		return
 
 	work: () =>
+		starttime = Date.now()
+		@debug "get stats (#{@localconf.qname}) from rsmq"
 		@rsmq.getStats @localconf.qname, (err, resp) =>
 			if err?
 				@logErr err
-				# maybe count errors and kill worker after x errors
-				process.exit(1)
+				@nextIteration(starttime)
+				return
 
-			@debug resp
+
 			inner =
 				time: tools.now()
 				count: resp.msgs
@@ -80,15 +85,26 @@ class RMAggregator extends require("./lib/base")
 				recv: resp.totalrecv
 			data = {}
 			data[@QKEY] = inner
-			influxconn.writeStats data, (err, resp) =>
+
+			@debug "write stats to influx..."
+			influxconn.writeStats data, (err) =>
 				if err?
 					@logErr err
-					process.exit(1)
+					@nextIteration(starttime)
+					return
 
-				# TODO: stop working time and subtract
-				setTimeout(@work, @localconf.interval * 1000)
+				@debug "success!"
+				@nextIteration(starttime)
 				return
 			return
 		return
 
+	nextIteration: (starttime) =>
+		# random dead workers O_o
+		# process.exit(0) if tools.rand(1,5) is 4
+		setTimeout @work, (@localconf.interval * 1000) - (Date.now() - starttime)
+		return
+
+
+# Run the App!
 new RMAggregator()
