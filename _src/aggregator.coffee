@@ -64,7 +64,6 @@ class RMAggregator extends require("./lib/base")
 		@debug "WORKER for Key: #{@QKEY} created"
 		@localconf = config.get("queues")?[@QKEY]
 		@rsmq = new rsmqconn(@localconf)
-
 		@work()
 		return
 
@@ -76,7 +75,6 @@ class RMAggregator extends require("./lib/base")
 				@logErr err
 				@nextIteration(starttime)
 				return
-
 
 			inner =
 				time: tools.now()
@@ -100,11 +98,8 @@ class RMAggregator extends require("./lib/base")
 		return
 
 	nextIteration: (starttime) =>
-		# random dead workers O_o
-		# process.exit(0) if tools.rand(1,5) is 4
 		setTimeout @work, (@localconf.interval * 1000) - (Date.now() - starttime)
 		return
-
 
 # Run the App!
 new RMAggregator()
