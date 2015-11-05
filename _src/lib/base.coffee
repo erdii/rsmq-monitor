@@ -22,7 +22,7 @@ class RMBase
 		return
 
 	logErr: =>
-		console.error "#{(new Date()).toISOString()} #{@logKey}:#{if @QKEY? then @QKEY else ""}:ERROR " + (@inspect(arg, i, arguments.length) for arg, i in arguments)
+		console.error "#{(new Date()).toISOString()} #{@logKey}:#{if @QKEY? then "#{@QKEY}:" else ""}ERROR " + (@inspect(arg, i, arguments.length) for arg, i in arguments)
 		return
 
 module.exports = RMBase

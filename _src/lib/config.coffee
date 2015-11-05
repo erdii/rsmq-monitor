@@ -25,6 +25,7 @@ class RMConfig extends require("./base")
 				interval: 1
 			queues: {}
 		return def
+
 	constructor: () ->
 		super
 		# load the local config if the file exists

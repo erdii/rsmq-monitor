@@ -14,7 +14,7 @@ send = (msg, i, cb) ->
 			cb(err)
 			return
 
-		console.dir resp
+		# console.dir resp
 		cb(null)
 		return
 	return
@@ -25,12 +25,19 @@ rand = (min, max) -> Math.floor((Math.random()*(max-min) + min)/10)*10
 
 startSending = (i) ->
 	n = 0
+	stopwatch = Date.now()
 	sendAfterTimeout = (err) ->
 		process.exit(1) if err?
 		n++
-
-		timeout = rand(10, 50)
-		console.log "next msg in #{timeout}ms"
+		if n is 101
+			diff = Date.now() - stopwatch
+			tpr = diff / (n - 1)
+			rps = 1000 / tpr
+			console.log "rps: #{rps}"
+			n = 0
+			stopwatch = Date.now()
+		timeout = 2
+		# console.log "next msg in #{timeout}ms"
 		setTimeout((() ->
 			send(msg(n, timeout), i, sendAfterTimeout)
 			return

@@ -134,10 +134,11 @@ To configure all the systems a config.json has to be defined with the following 
 - **writeStats**
 - **getStats**
 - **dropStats**
-- **createDatabase**
-
 
 ## Development
-TODO
+TODO:
+Influx-connector.getStats
+rest model
+rest api
 
-Start with `NODE_ENV=development DEBUG=rsmq* node-dev app/app.js`
+Start with `NODE_ENV=development DEBUG=rsmq* node-dev app/aggregator.js`

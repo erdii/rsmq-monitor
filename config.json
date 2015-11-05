@@ -8,7 +8,7 @@
 	},
 	"queues": {
 		"queue1": {"qname": "mon1"},
-		"queue2": {"qname": "mon2", "ns": "rmon2"},
+		"queue2": {"qname": "mon2"},
 		"queue3": {"qname": "mon3", "interval": 5},
 		"queue4": {"qname": "mon4"}
 	},

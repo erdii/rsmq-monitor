@@ -1,4 +1,5 @@
 _ = require "lodash"
+async = require "async"
 config = require "./config"
 errors = require "./errors"
 influx = require "influx"
@@ -10,6 +11,7 @@ class RMInfluxConnector extends require("./base")
 		# connect to the InfluxDB server
 		options = config.get "influx"
 		@client = influx options
+		@queues = config.get "queues"
 		return
 
 	# writeStats(`data`, cb)
@@ -30,11 +32,12 @@ class RMInfluxConnector extends require("./base")
 	#         * `recv`: total number of messages ever received by workers
 	writeStats: (data, cb) =>
 		for key, measurement of data
+			tags = { interval: @queues[key].interval }
 			if _.isArray(measurement)
 				for sample, i in measurement
-					measurement[i] = [sample]
+					measurement[i] = [sample, tags]
 			else if _.isObject(measurement)
-				data[key] = [[measurement]]
+				data[key] = [[measurement, tags]]
 			else
 				cb errors.create "ETYPE",
 					identifier: "data.#{key}"
@@ -55,34 +58,20 @@ class RMInfluxConnector extends require("./base")
 	getStats: (key, opts, cb) =>
 		if typeof opts is "function"
 			cb = opts
-			opts = null
+			opts = {}
 
-		queryInfix = "count, DERIVATIVE()"
+		opts.fields = tools.sanitize(opts.fields or "*")
+		querySelect = "SELECT #{tools.sanitize(opts.fields)} "
+		queryWhere = if opts.where? then " WHERE #{tools.sanitize(opts.where)}" else ""
+		queryGroup = if opts.group? then " GROUP BY #{tools.sanitize(opts.group)}" else ""
+		queryLimit = if opts.limit? then " LIMIT #{tools.sanitize(opts.limit)}" else ""
 
-		if opts?
-			if opts.start? and opts.end?
-				querySuffix = "WHERE time > '#{tools.sanitize(opts.from)}' AND time < '#{tools.sanitize(opts.end)}'"
-			else
-				if opts.start?
-					# querySuffix = "WHERE time > now() - #{tools.sanitize(opts.end)}"
-					querySuffix = "WHERE time > '#{tools.sanitize(opts.start)}'"
-				else if opts.end?
-					querySuffix = "WHERE time < '#{tools.sanitize(opts.start)}'"
-				else
-					querySuffix = "WHERE time > now() - 24h"
-			if opts.group?
-				querySuffix += " GROUP BY #{opts.group}"
-				queryInfix = "MEAN(count) as mCount,MEAN(received)"
-		else
-			querySuffix = "WHERE time > now() - 24h"
-		# <-----------
-		# <-----------
-		# <-----------
-		# <-----------
-		@debug querySuffix
-		@client.query "SELECT #{queryInfix} FROM #{tools.sanitize(key)} #{querySuffix}", (err, resp) =>
+		queryString = querySelect + "FROM #{key}" + queryWhere + queryGroup + queryLimit
+		@debug queryString
+		@client.query queryString, (err, resp) =>
 			if err?
 				@logErr(err)
+				@debug err
 				cb(err)
 				return
 
@@ -110,9 +99,47 @@ class RMInfluxConnector extends require("./base")
 			cb(null, resp)
 		return
 
-	createDatabase: (name, cb) =>
-		@client.createDatabase name, (err, resp) =>
-			cb(null, resp)
+	maintainContinuousQueries: (cb) =>
+		queues = config.get("queues")
+		fields = ["sent", "recv"]
+		archives = [["1s", "60s"], ["1m", "60m"], ["1h", "24h"], ["1d", "31d"], ["4w", "48w"]]
+		@client.getContinuousQueries (err, continuousQueries) =>
+			if err?
+				cb(err)
+				return
+
+			assemble = (key, field, archive) -> key + "_" + field + "_" + archive[0] + archive[1]
+
+			cqs = _.pluck(continuousQueries[0], "name")
+			renew = {}
+			for key of queues
+				for field in fields
+					for archive in archives
+						ass = assemble(key, field, archive)
+						if cqs.indexOf(ass) is -1
+							renew[ass] = [key, "DERIVATIVE(#{field}, #{archive[0]})", archive[1]]
+
+			@debug "all continuousQueries are there - nothing to maintain" if Object.keys(renew).length is 0
+			async.forEachOfSeries renew, ((cqparams, cqkey, cbA) =>
+				queryString = "SELECT #{cqparams[1]} INTO #{cqkey} FROM #{cqparams[0]} GROUP BY time(#{cqparams[2]})"
+				@debug queryString
+				# cbA()
+				@client.createContinuousQuery cqkey, queryString, (err, resp) =>
+					if err?
+						cbA(err)
+						return
+
+					@debug resp
+					cbA()
+					return
+				return), (err) =>
+					if err?
+						cb(err)
+						return
+
+					cb()
+				return
+			return
 		return
 
 

@@ -14,7 +14,7 @@ receive = (i, cb) ->
 			return
 
 		if resp?.id?
-			console.log "received:", resp
+			# console.log "received:", resp
 			cb(null, resp)
 		else
 			cb(null)
@@ -41,16 +41,25 @@ rand = (min, max) -> Math.floor((Math.random()*(max-min) + min)/10)*10
 
 
 startReceiving = (i) ->
+	stopwatch = Date.now()
+	counter = 0
 	receiveAfterTimeout = () ->
-		timeout = rand(5, 25)
-		console.log "next msg in #{timeout}ms"
+		counter++
+		if counter is 101
+			diff = Date.now() - stopwatch
+			timeperrun = diff / (counter-1)
+			runspersecond = Math.round((1000 / timeperrun) * 100) / 100
+			console.log "rps: #{runspersecond}"
+			counter = 0
+			stopwatch = Date.now()
+		timeout = 1
+		# console.log "next msg in #{timeout}ms"
 		setTimeout((() ->
 			receive i, (err, resp) ->
 				return if err?
-				if resp?.id? and timeout > 7
+				if resp?.id?
 					del i, resp.id, (err, success) ->
 						return if err?
-						console.log "id" if not success
 						receiveAfterTimeout()
 						return
 				else receiveAfterTimeout()

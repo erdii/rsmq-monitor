@@ -23,7 +23,17 @@ class RMAggregator extends require("./lib/base")
 	initMaster: () =>
 		@debug config.get()
 		@debug "MASTER"
+		@spawnWorkers()
+		# influxconn.maintainContinuousQueries (err) =>
+		# 	if err?
+		# 		@logErr err
+		# 		throw err
+		#
+		# 	@spawnWorkers()
+		# 	return
+		return
 
+	spawnWorkers: () =>
 		@queues = config.get("queues")
 		@workers = {}
 		@timeouts = []
@@ -64,10 +74,10 @@ class RMAggregator extends require("./lib/base")
 		@debug "WORKER for Key: #{@QKEY} created"
 		@localconf = config.get("queues")?[@QKEY]
 		@rsmq = new rsmqconn(@localconf)
-		@work()
+		@work(true)
 		return
 
-	work: () =>
+	work: (firstrun = false) =>
 		starttime = Date.now()
 		@debug "get stats (#{@localconf.qname}) from rsmq"
 		@rsmq.getStats @localconf.qname, (err, resp) =>
@@ -76,14 +86,24 @@ class RMAggregator extends require("./lib/base")
 				@nextIteration(starttime)
 				return
 
+			if firstrun
+				@lastsent = resp.totalsent
+				@lastrecv = resp.totalrecv
+				@nextIteration(starttime)
+				return
+
 			inner =
 				time: tools.now()
 				count: resp.msgs
-				sent: resp.totalsent
-				recv: resp.totalrecv
+				sent: resp.totalsent - @lastsent
+				recv: resp.totalrecv - @lastrecv
+
+
+			@lastsent = resp.totalsent
+			@lastrecv = resp.totalrecv
+
 			data = {}
 			data[@QKEY] = inner
-
 			@debug "write stats to influx..."
 			influxconn.writeStats data, (err) =>
 				if err?
