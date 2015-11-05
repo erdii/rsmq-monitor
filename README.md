@@ -137,8 +137,13 @@ To configure all the systems a config.json has to be defined with the following 
 
 ## Development
 TODO:
+fix tests
+more tests
 Influx-connector.getStats
 rest model
 rest api
 
+
+Build with `grunt build`
+Watch with `grunt watch` or `grunt bwatch` (build and watch then)
 Start with `NODE_ENV=development DEBUG=rsmq* node-dev app/aggregator.js`
