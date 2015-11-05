@@ -99,48 +99,5 @@ class RMInfluxConnector extends require("./base")
 			cb(null, resp)
 		return
 
-	maintainContinuousQueries: (cb) =>
-		queues = config.get("queues")
-		fields = ["sent", "recv"]
-		archives = [["1s", "60s"], ["1m", "60m"], ["1h", "24h"], ["1d", "31d"], ["4w", "48w"]]
-		@client.getContinuousQueries (err, continuousQueries) =>
-			if err?
-				cb(err)
-				return
-
-			assemble = (key, field, archive) -> key + "_" + field + "_" + archive[0] + archive[1]
-
-			cqs = _.pluck(continuousQueries[0], "name")
-			renew = {}
-			for key of queues
-				for field in fields
-					for archive in archives
-						ass = assemble(key, field, archive)
-						if cqs.indexOf(ass) is -1
-							renew[ass] = [key, "DERIVATIVE(#{field}, #{archive[0]})", archive[1]]
-
-			@debug "all continuousQueries are there - nothing to maintain" if Object.keys(renew).length is 0
-			async.forEachOfSeries renew, ((cqparams, cqkey, cbA) =>
-				queryString = "SELECT #{cqparams[1]} INTO #{cqkey} FROM #{cqparams[0]} GROUP BY time(#{cqparams[2]})"
-				@debug queryString
-				# cbA()
-				@client.createContinuousQuery cqkey, queryString, (err, resp) =>
-					if err?
-						cbA(err)
-						return
-
-					@debug resp
-					cbA()
-					return
-				return), (err) =>
-					if err?
-						cb(err)
-						return
-
-					cb()
-				return
-			return
-		return
-
 
 module.exports = new RMInfluxConnector()
