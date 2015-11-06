@@ -92,18 +92,17 @@ class RMAggregator extends require("./lib/base")
 				@nextIteration(starttime)
 				return
 
-			inner =
+			payload =
 				time: tools.now()
 				count: resp.msgs
 				sent: resp.totalsent - @lastsent
 				recv: resp.totalrecv - @lastrecv
 
-
 			@lastsent = resp.totalsent
 			@lastrecv = resp.totalrecv
 
 			data = {}
-			data[@QKEY] = inner
+			data[@QKEY] = payload
 			@debug "write stats to influx..."
 			influxconn.writeStats data, (err) =>
 				if err?

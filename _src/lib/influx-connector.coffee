@@ -32,7 +32,7 @@ class RMInfluxConnector extends require("./base")
 	#         * `recv`: total number of messages ever received by workers
 	writeStats: (data, cb) =>
 		for key, measurement of data
-			tags = { interval: @queues[key].interval }
+			tags = { interval: @queues[key]?.interval or null }
 			if _.isArray(measurement)
 				for sample, i in measurement
 					measurement[i] = [sample, tags]
@@ -46,7 +46,6 @@ class RMInfluxConnector extends require("./base")
 
 		@client.writeSeries data, {precision:'s'}, (err) =>
 			if err?
-				@logErr(err)
 				cb(err)
 				return
 			cb()
@@ -70,14 +69,16 @@ class RMInfluxConnector extends require("./base")
 		@debug queryString
 		@client.query queryString, (err, resp) =>
 			if err?
-				@logErr(err)
-				@debug err
 				cb(err)
 				return
 
-			# TODO check resp
-			@debug resp
-			@debug resp[0]
+			unless _.isArray(resp) and resp[0]?
+				cb errors.create "EINVALIDRESPONSE",
+					from: "InfluxDB"
+					resp: resp
+				return
+
+			@debug "answer length: #{resp[0].length}"
 			cb(null, resp[0])
 			return
 		return
@@ -93,7 +94,6 @@ class RMInfluxConnector extends require("./base")
 					cb(null, resp)
 					return
 				@debug "error dropping stats"
-				@logErr(err)
 				cb(err)
 				return
 			cb(null, resp)

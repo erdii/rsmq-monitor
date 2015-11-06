@@ -1,3 +1,5 @@
+should = require "should"
+
 now = () -> Math.floor(Date.now()/1000)
 
 describe "Testing Influx-connector module", () ->
@@ -14,15 +16,9 @@ describe "Testing Influx-connector module", () ->
 			test_queue2: { time: now(), count: 2, sent: 12, recv: 10 }
 
 		influx.writeStats data, (err) ->
-			console.dir err
-			if err?.message.indexOf("database not found") >= 0
-				influx.createDatabase "rsmq_monitor", (err) ->
-					if not err?
-						influx.writeStats data, (err) ->
-							console.log err if err?
-							done()
-			else
-				done()
+			console.log err if err?
+			should.not.exist(err)
+			done()
 			return
 
 

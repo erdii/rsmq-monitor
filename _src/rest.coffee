@@ -23,8 +23,8 @@ class RMRest extends require("./lib/base")
 
 		# last error catching middleware
 		app.use (err, req, res, next) =>
-			@logErr err, req
-			res.stats(500).send("Internal Server Error")
+			@logErr err, req.originalUrl
+			res.status(500).send("Internal Server Error")
 			return
 
 		@server = app.listen @restconfig, () =>

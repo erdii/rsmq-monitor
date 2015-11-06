@@ -61,7 +61,13 @@ To configure all the systems a config.json has to be defined with the following 
     keys: ["key1", "key2", ...]
   }
   ```
- All methods below have the following (optional) QueryParams: ?start=bla&end=blubb&group=xy
+
+All methods below have the following (optional) QueryParams: **?start=bla&end=blubb&group=xy**
+  * **`start`**: (*String* default: `now() - 1h`): a timestamp plus the unit eg: "1446818686156ms"
+  * **`end`**: (*String* default: `now()`): same as `start`
+  * **`group`**: (*String*): time interval to group by (mean values are taken for the specified intervals) eg: "1m" to group by 1 minutes or "15m", "1h", "20s"
+  * **`limit`**: (*Number*): the maximum number of timeslots in the answer
+
 - **getAllStats**
   ```
   GET /api/v1/:KEY
