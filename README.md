@@ -143,11 +143,14 @@ All methods below have the following (optional) QueryParams: **?start=bla&end=bl
 
 ## Development
 TODO:
-fix tests
-more tests
-Influx-connector.getStats
-rest model
-rest api
+Tests:
+  * lib: base, errors, rsmq-connector, tools
+  * routes, models: api_v1
+  * root: aggregator, rest
+
+REST: new endpoints:
+- latest: latest Probe
+- stats: avg, min, max of defined Interval
 
 
 Build with `grunt build`

@@ -10,6 +10,7 @@ class RMAPIv1 extends require("../lib/base")
 		return
 
 	createRoutes: (baseroute, app) =>
+		app.get(baseroute + "/list", @listQueues)
 		app.get(baseroute + "/:key", @getAllStats)
 		app.get(baseroute + "/:key/count", @getCount)
 		app.get(baseroute + "/:key/recv", @getReceived)
@@ -25,6 +26,10 @@ class RMAPIv1 extends require("../lib/base")
 
 			res.status(healthyStatusCode).send(resp)
 			return
+
+	listQueues: (req, res) =>
+		@model.listQueues(req, @handleAnswer(res))
+		return
 
 	getAllStats: (req, res) =>
 		@model.getAllStats(req, @handleAnswer(res))

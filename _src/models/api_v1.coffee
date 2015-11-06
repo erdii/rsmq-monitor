@@ -8,30 +8,29 @@ tools = require "../lib/tools"
 
 class RMAPIv1Model extends require "../lib/base"
 	constructor: () ->
-		super
 		@queues = config.get("queues")
+		super
 		return
 
-	packField: (field, group) ->
-		console.log field
-		if group is "1s"
+	packField: (field, group, key) =>
+		if group <= @queues[key].interval
 			return field
 		else
 			return "mean(#{field}) as #{field}"
 
-	assembleOpts: (opts, selector) ->
-		now = Date.now()
+	assembleOpts: (opts, selector, key) ->
+		now = tools.now()
 		def =
-			start: now - 60 * 60000 + "ms"
-			end: now + "ms"
-			group: "1m"
+			start: now - 3600
+			end: now
+			group: 60
 
 		opts = extend({}, def, opts)
 
 		_opts =
-			where: "time > #{opts.start}"
+			where: "time > #{opts.start}s"
 
-		_opts.where += " AND time < #{opts.end}" if opts.end?
+		_opts.where += " AND time < #{opts.end}s" if opts.end?
 		_opts.limit = opts.limit if opts.limit?
 
 		switch selector
@@ -46,10 +45,10 @@ class RMAPIv1Model extends require "../lib/base"
 
 		_opts.fields = ""
 		for _field in _fields
-			_opts.fields += @packField(_field, opts.group) + ", "
+			_opts.fields += @packField(_field, opts.group, key) + ", "
 		_opts.fields = _opts.fields.slice(0, -2)
 
-		_opts.group = "time(#{opts.group})" unless opts.group is "1s"
+		_opts.group = "time(#{opts.group}s)" unless opts.group <= @queues[key].interval
 		return _opts
 
 	getStats: (selector) =>
@@ -63,26 +62,27 @@ class RMAPIv1Model extends require "../lib/base"
 			else
 				opts = opts or {}
 
-			_opts = @assembleOpts(opts, selector)
+			_opts = @assembleOpts(opts, selector, key)
 
 			influxconn.getStats key, _opts, (err, resp) =>
 				if err?
 					cb(err)
 					return
 
+				for item, i in resp
+					resp[i].time = (new Date(item.time)).valueOf() / 1000
+
 				output =
-					key: key
 					opts: _opts
-					interval: @queues[key].interval
 					items: resp
 				cb(null, output)
 				return
 			return
 
+
 	getAllStats: (req, cb) =>
 		@getStats("all")(req, cb)
 		return
-
 
 	getCount: (req, cb) =>
 		@getStats("count")(req, cb)
@@ -94,6 +94,11 @@ class RMAPIv1Model extends require "../lib/base"
 
 	getSent: (req, cb) =>
 		@getStats("sent")(req, cb)
+		return
+
+
+	listQueues: (req, cb) =>
+		cb(null, @queues)
 		return
 
 module.exports = new RMAPIv1Model()
