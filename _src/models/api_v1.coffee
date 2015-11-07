@@ -19,6 +19,7 @@ class RMAPIv1Model extends require "../lib/base"
 			return "mean(#{field}) as #{field}"
 
 	assembleOpts: (opts, selector, key) ->
+		# TODO move most of this code to lib/influx-connector
 		now = tools.now()
 		def =
 			start: now - 3600
@@ -49,7 +50,7 @@ class RMAPIv1Model extends require "../lib/base"
 		_opts.fields = _opts.fields.slice(0, -2)
 
 		_opts.group = "time(#{opts.group}s)" unless opts.group <= @queues[key].interval
-		return _opts
+		return [_opts, opts]
 
 	getStats: (selector) =>
 		return (req, cb) =>
@@ -62,7 +63,7 @@ class RMAPIv1Model extends require "../lib/base"
 			else
 				opts = opts or {}
 
-			_opts = @assembleOpts(opts, selector, key)
+			[_opts, opts_raw] = @assembleOpts(opts, selector, key)
 
 			influxconn.getStats key, _opts, (err, resp) =>
 				if err?
@@ -73,7 +74,7 @@ class RMAPIv1Model extends require "../lib/base"
 					resp[i].time = (new Date(item.time)).valueOf() / 1000
 
 				output =
-					opts: _opts
+					opts: opts_raw
 					items: resp
 				cb(null, output)
 				return

@@ -15,7 +15,7 @@ class RMRest extends require("./lib/base")
 		@restconfig = config.get("rest")
 		# disable x-powered-by HTTP-Header to obscure express server software
 		app.disable("x-powered-by")
-		# ennable http request logging
+		# enable http request logging
 		app.use(morgan("dev"))
 
 		@api_v1 = require "./routes/api_v1"
