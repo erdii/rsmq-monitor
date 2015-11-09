@@ -45,6 +45,7 @@
   <span class="nv">constructor: </span><span class="p">()</span> <span class="nf">-&gt;</span>
     <span class="vi">@logKey = </span><span class="nx">@constructor</span><span class="p">.</span><span class="nx">name</span>
     <span class="k">return</span>
+
   <span class="nv">debug: </span><span class="p">()</span> <span class="o">=&gt;</span>
     <span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span> <span class="o">is</span> <span class="s">&quot;development&quot;</span>
       <span class="nx">debug</span><span class="p">(</span> <span class="nx">@logKey</span> <span class="o">+</span> <span class="k">if</span> <span class="nx">@QKEY</span><span class="o">?</span> <span class="k">then</span> <span class="s">&quot;:</span><span class="si">#{</span><span class="nx">@QKEY</span><span class="si">}</span><span class="s">&quot;</span> <span class="k">else</span> <span class="s">&quot;&quot;</span> <span class="p">)(</span><span class="nx">arg</span><span class="p">)</span> <span class="k">for</span> <span class="nx">arg</span> <span class="k">in</span> <span class="nx">arguments</span>

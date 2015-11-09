@@ -62,7 +62,7 @@
 
 
   <span class="nx">it</span> <span class="s">&quot;getStats&quot;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
-    <span class="nx">influx</span><span class="p">.</span><span class="nx">getStats</span> <span class="s">&quot;test_queue1&quot;</span><span class="p">,</span> <span class="nf">(err, resp) -&gt;</span>
+    <span class="nx">influx</span><span class="p">.</span><span class="nx">getStats</span> <span class="s">&quot;test_queue1&quot;</span><span class="p">,</span> <span class="s">&quot;all&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="nf">(err, resp) -&gt;</span>
       <span class="k">if</span> <span class="o">not</span> <span class="nx">err</span><span class="o">?</span>
         <span class="k">if</span> <span class="nx">resp</span><span class="o">?</span>
           <span class="nx">resp</span><span class="p">.</span><span class="nx">length</span><span class="p">.</span><span class="nx">should</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">exactly</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
