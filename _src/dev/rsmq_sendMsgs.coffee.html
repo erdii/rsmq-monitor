@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>rsmq_sendMsgs.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/dev/rsmq_sendMsgs.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>rsmq_sendMsgs.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">qconf = </span><span class="nx">require</span> <span class="s">&quot;./queue.json&quot;</span>
+
+
+<span class="nv">async = </span><span class="nx">require</span> <span class="s">&quot;async&quot;</span>
+<span class="nv">RedisSMQ = </span><span class="nx">require</span> <span class="s">&quot;rsmq&quot;</span>
+<span class="nv">rsmq = </span><span class="k">new</span> <span class="nx">RedisSMQ</span> <span class="nx">qconf</span><span class="p">.</span><span class="nx">rsmq</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;../lib/tools&quot;</span>
+
+
+<span class="nv">send = </span><span class="nf">(msg, i, cb) -&gt;</span>
+  <span class="nx">rsmq</span><span class="p">.</span><span class="nx">sendMessage</span> <span class="p">{</span> <span class="nv">qname: </span><span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="nv">message: </span><span class="nx">msg</span> <span class="p">},</span> <span class="nf">(err, resp) -&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+      <span class="k">return</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>console.dir resp</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+    <span class="k">return</span>
+  <span class="k">return</span>
+
+<span class="nv">msg = </span><span class="nf">(n, offset = 0) -&gt;</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">n</span><span class="si">}</span><span class="s">:</span><span class="si">#{</span><span class="nx">tools</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">offset</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span><span class="si">}</span><span class="s">&quot;</span>
+
+<span class="nv">rand = </span><span class="nf">(min, max) -&gt;</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">((</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="nx">max</span><span class="o">-</span><span class="nx">min</span><span class="p">)</span> <span class="o">+</span> <span class="nx">min</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span>
+
+<span class="nv">startSending = </span><span class="nf">(i) -&gt;</span>
+  <span class="nv">n = </span><span class="mi">0</span>
+  <span class="nv">stopwatch = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+  <span class="nv">sendAfterTimeout = </span><span class="nf">(err) -&gt;</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+    <span class="nx">n</span><span class="o">++</span>
+    <span class="k">if</span> <span class="nx">n</span> <span class="o">is</span> <span class="mi">101</span>
+      <span class="nv">diff = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">stopwatch</span>
+      <span class="nv">tpr = </span><span class="nx">diff</span> <span class="o">/</span> <span class="p">(</span><span class="nx">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="nv">rps = </span><span class="mi">1000</span> <span class="o">/</span> <span class="nx">tpr</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;rps: </span><span class="si">#{</span><span class="nx">rps</span><span class="si">}</span><span class="s">&quot;</span>
+      <span class="nv">n = </span><span class="mi">0</span>
+      <span class="nv">stopwatch = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+    <span class="nv">timeout = </span><span class="mi">2</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>console.log "next msg in #{timeout}ms"</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">setTimeout</span><span class="p">((()</span> <span class="nf">-&gt;</span>
+      <span class="nx">send</span><span class="p">(</span><span class="nx">msg</span><span class="p">(</span><span class="nx">n</span><span class="p">,</span> <span class="nx">timeout</span><span class="p">),</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">sendAfterTimeout</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="p">),</span> <span class="nx">timeout</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nx">sendAfterTimeout</span><span class="p">()</span>
+  <span class="k">return</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">dir</span> <span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span>
+<span class="k">for</span> <span class="nx">queue</span><span class="p">,</span><span class="nx">i</span> <span class="k">in</span> <span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">i</span><span class="si">}</span><span class="s">: </span><span class="si">#{</span><span class="nx">queue</span><span class="si">}</span><span class="s">&quot;</span>
+  <span class="nx">startSending</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

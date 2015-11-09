@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>runner.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/dev/runner.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h1">
+        <a href="#ic.maintaincontinuousqueries%20(err)%20-%3E">ic.maintainContinuousQueries (err) -></a>
+      </div>
+      <div class="heading h1">
+        <a href="#console.dir%20err%20if%20err%3F">console.dir err if err?</a>
+      </div>
+      <div class="heading h1">
+        <a href="#return">return</a>
+      </div>
+      <div class="heading h1">
+        <a href="#opts%20%3D">opts =</a>
+      </div>
+      <div class="heading h1">
+        <a href="#fields%3A%20%22mean(count)%20as%20count%2C%20mean(sent)%20as%20sent%2C%20mean(recv)%20as%20recv%22">fields: "mean(count) as count, mean(sent) as sent, mean(recv) as recv"</a>
+      </div>
+      <div class="heading h1">
+        <a href="#where%3A%20%22time%20%3E%20now()%20-%2010m%22">where: "time > now() - 10m"</a>
+      </div>
+      <div class="heading h1">
+        <a href="#group%3A%20%22time(1m)%22">group: "time(1m)"</a>
+      </div>
+      <div class="heading h1">
+        <a href="#ic.getstats%20%22queue1%22%2C%20opts%20%2C%20(err%2C%20resp)%20-%3E">ic.getStats "queue1", opts , (err, resp) -></a>
+      </div>
+      <div class="heading h1">
+        <a href="#console.log%20resp">console.log resp</a>
+      </div>
+      <div class="heading h1">
+        <a href="#return">return</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs"><p>ic = require "../lib/influx-connector"</p>
+
+
+<div class="pilwrap" id="ic.maintaincontinuousqueries%20(err)%20-%3E">
+  <h1>
+    <a href="#ic.maintaincontinuousqueries%20(err)%20-%3E" name="ic.maintaincontinuousqueries%20(err)%20-%3E" class="pilcrow">&#182;</a>
+    ic.maintainContinuousQueries (err) ->
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="console.dir%20err%20if%20err%3F">
+  <h1>
+    <a href="#console.dir%20err%20if%20err%3F" name="console.dir%20err%20if%20err%3F" class="pilcrow">&#182;</a>
+    console.dir err if err?
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="return">
+  <h1>
+    <a href="#return" name="return" class="pilcrow">&#182;</a>
+    return
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="opts%20%3D">
+  <h1>
+    <a href="#opts%20%3D" name="opts%20%3D" class="pilcrow">&#182;</a>
+    opts =
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="fields%3A%20%22mean(count)%20as%20count%2C%20mean(sent)%20as%20sent%2C%20mean(recv)%20as%20recv%22">
+  <h1>
+    <a href="#fields%3A%20%22mean(count)%20as%20count%2C%20mean(sent)%20as%20sent%2C%20mean(recv)%20as%20recv%22" name="fields%3A%20%22mean(count)%20as%20count%2C%20mean(sent)%20as%20sent%2C%20mean(recv)%20as%20recv%22" class="pilcrow">&#182;</a>
+    fields: "mean(count) as count, mean(sent) as sent, mean(recv) as recv"
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="where%3A%20%22time%20%3E%20now()%20-%2010m%22">
+  <h1>
+    <a href="#where%3A%20%22time%20%3E%20now()%20-%2010m%22" name="where%3A%20%22time%20%3E%20now()%20-%2010m%22" class="pilcrow">&#182;</a>
+    where: "time > now() - 10m"
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="group%3A%20%22time(1m)%22">
+  <h1>
+    <a href="#group%3A%20%22time(1m)%22" name="group%3A%20%22time(1m)%22" class="pilcrow">&#182;</a>
+    group: "time(1m)"
+  </h1>
+</div>
+
+
+<p>#</p>
+
+
+<div class="pilwrap" id="ic.getstats%20%22queue1%22%2C%20opts%20%2C%20(err%2C%20resp)%20-%3E">
+  <h1>
+    <a href="#ic.getstats%20%22queue1%22%2C%20opts%20%2C%20(err%2C%20resp)%20-%3E" name="ic.getstats%20%22queue1%22%2C%20opts%20%2C%20(err%2C%20resp)%20-%3E" class="pilcrow">&#182;</a>
+    ic.getStats "queue1", opts , (err, resp) ->
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="console.log%20resp">
+  <h1>
+    <a href="#console.log%20resp" name="console.log%20resp" class="pilcrow">&#182;</a>
+    console.log resp
+  </h1>
+</div>
+
+
+
+<div class="pilwrap" id="return_1">
+  <h1>
+    <a href="#return_1" name="return_1" class="pilcrow">&#182;</a>
+    return
+  </h1>
+</div>
+
+
+<p>opts2 =
+    where: "time > now() - 10m"</p>
+
+<p>ic.getStats "queue1", opts2 , (err, resp) ->
+    console.log resp
+    return</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">extend = </span><span class="nx">require</span> <span class="s">&quot;extend&quot;</span>
+
+<span class="nv">now = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+<span class="nv">opts =</span>
+  <span class="nv">start: </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">now</span> <span class="o">-</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">60000</span><span class="si">}</span><span class="s">ms&quot;</span>
+  <span class="nv">end: </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">now</span> <span class="o">-</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">60000</span><span class="si">}</span><span class="s">ms&quot;</span>
+  <span class="nv">group: </span><span class="s">&quot;1s&quot;</span>
+
+<span class="nv">def =</span>
+  <span class="nv">start: </span><span class="s">&quot;now() - 60m&quot;</span>
+  <span class="nv">group: </span><span class="s">&quot;1m&quot;</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">dir</span> <span class="nx">extend</span><span class="p">({},</span> <span class="nx">def</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+
+
+<span class="nv">apimodel = </span><span class="nx">require</span> <span class="s">&quot;../models/api_v1&quot;</span>
+
+<span class="nx">apimodel</span><span class="p">.</span><span class="nx">getAllStats</span> <span class="s">&quot;queue1&quot;</span><span class="p">,</span> <span class="nf">(err, resp) -&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">resp</span>
+
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;================&quot;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;================&quot;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;================&quot;</span>
+
+  <span class="nv">now = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+  <span class="nv">opts =</span>
+    <span class="nv">start: </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">now</span> <span class="o">-</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">60000</span><span class="si">}</span><span class="s">ms&quot;</span>
+    <span class="nv">end: </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">now</span> <span class="o">-</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">60000</span><span class="si">}</span><span class="s">ms&quot;</span>
+    <span class="nv">group: </span><span class="s">&quot;1s&quot;</span>
+  <span class="nx">apimodel</span><span class="p">.</span><span class="nx">getAllStats</span> <span class="s">&quot;queue1&quot;</span><span class="p">,</span> <span class="nx">opts</span><span class="p">,</span> <span class="nf">(err, resp) -&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">resp</span>
+    <span class="k">return</span>
+  <span class="k">return</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

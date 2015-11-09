@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>api_v1.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/models/api_v1.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>api_v1.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s">&quot;lodash&quot;</span>
+<span class="nv">config = </span><span class="nx">require</span> <span class="s">&quot;../lib/config&quot;</span>
+<span class="nv">errors = </span><span class="nx">require</span> <span class="s">&quot;../lib/errors&quot;</span>
+<span class="nv">influxconn = </span><span class="nx">require</span> <span class="s">&quot;../lib/influx-connector&quot;</span>
+<span class="nv">rsmqconn = </span><span class="nx">require</span> <span class="s">&quot;../lib/rsmq-connector&quot;</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;../lib/tools&quot;</span>
+
+<span class="k">class</span> <span class="nx">RMAPIv1Model</span> <span class="k">extends</span> <span class="nx">require</span> <span class="s">&quot;../lib/base&quot;</span>
+  <span class="nv">constructor: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="vi">@queues = </span><span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;queues&quot;</span><span class="p">)</span>
+    <span class="k">super</span>
+    <span class="k">return</span>
+
+
+
+  <span class="nv">getStats: </span><span class="nf">(selector) =&gt;</span>
+    <span class="k">return</span> <span class="nf">(req, cb) =&gt;</span>
+      <span class="nv">opts = </span><span class="nx">_</span><span class="p">.</span><span class="nx">pick</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;start&quot;</span><span class="p">,</span> <span class="s">&quot;end&quot;</span><span class="p">,</span> <span class="s">&quot;group&quot;</span><span class="p">,</span> <span class="s">&quot;limit&quot;</span><span class="p">])</span>
+      <span class="nv">key = </span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">key</span>
+
+      <span class="k">if</span> <span class="k">typeof</span> <span class="nx">opts</span> <span class="o">is</span> <span class="s">&quot;function&quot;</span>
+        <span class="nv">cb = </span><span class="nx">opts</span>
+        <span class="nv">opts = </span><span class="p">{}</span>
+      <span class="k">else</span>
+        <span class="nv">opts = </span><span class="nx">opts</span> <span class="o">or</span> <span class="p">{}</span>
+
+      <span class="nx">influxconn</span><span class="p">.</span><span class="nx">getStats</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">opts</span><span class="p">,</span> <span class="nf">(err, resp, opts_raw) =&gt;</span>
+        <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+          <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+          <span class="k">return</span>
+
+        <span class="k">for</span> <span class="nx">item</span><span class="p">,</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">resp</span>
+          <span class="nx">resp</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nv">time = </span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">time</span><span class="p">)).</span><span class="nx">valueOf</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1000</span>
+
+        <span class="nv">output =</span>
+          <span class="nv">opts: </span><span class="nx">opts_raw</span>
+          <span class="nv">items: </span><span class="nx">resp</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">output</span><span class="p">)</span>
+        <span class="k">return</span>
+      <span class="k">return</span>
+
+
+  <span class="nv">getAllStats: </span><span class="nf">(req, cb) =&gt;</span>
+    <span class="nx">@getStats</span><span class="p">(</span><span class="s">&quot;all&quot;</span><span class="p">)(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nv">getCount: </span><span class="nf">(req, cb) =&gt;</span>
+    <span class="nx">@getStats</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nv">getReceived: </span><span class="nf">(req, cb) =&gt;</span>
+    <span class="nx">@getStats</span><span class="p">(</span><span class="s">&quot;recv&quot;</span><span class="p">)(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nv">getSent: </span><span class="nf">(req, cb) =&gt;</span>
+    <span class="nx">@getStats</span><span class="p">(</span><span class="s">&quot;sent&quot;</span><span class="p">)(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">cb</span><span class="p">)</span>
+    <span class="k">return</span>
+
+
+  <span class="nv">listQueues: </span><span class="nf">(req, cb) =&gt;</span>
+    <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">@queues</span><span class="p">)</span>
+    <span class="k">return</span>
+
+<span class="nv">module.exports = </span><span class="k">new</span> <span class="nx">RMAPIv1Model</span><span class="p">()</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

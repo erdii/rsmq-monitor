@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>influx-connector.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../", thisFile = "_src/test/lib/influx-connector.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>influx-connector.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">should = </span><span class="nx">require</span> <span class="s">&quot;should&quot;</span>
+
+<span class="nv">now = </span><span class="p">()</span> <span class="nf">-&gt;</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="o">/</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="nx">describe</span> <span class="s">&quot;Testing Influx-connector module&quot;</span><span class="p">,</span> <span class="p">()</span> <span class="nf">-&gt;</span>
+  <span class="nx">@timeout</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+  <span class="nv">influx = </span><span class="nx">require</span> <span class="s">&quot;../../lib/influx-connector&quot;</span>
+  <span class="nx">it</span> <span class="s">&quot;writeStats&quot;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nv">data =</span>
+      <span class="nv">test_queue1: </span><span class="p">[</span>
+        <span class="p">{</span> <span class="nv">time: </span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="mi">15</span><span class="p">,</span> <span class="nv">count: </span><span class="mi">150</span><span class="p">,</span> <span class="nv">sent: </span><span class="mi">120000</span><span class="p">,</span> <span class="nv">recv: </span><span class="mi">119850</span> <span class="p">}</span>
+        <span class="p">{</span> <span class="nv">time: </span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">count: </span><span class="mi">100</span><span class="p">,</span> <span class="nv">sent: </span><span class="mi">120000</span><span class="p">,</span> <span class="nv">recv: </span><span class="mi">119900</span> <span class="p">}</span>
+        <span class="p">{</span> <span class="nv">time: </span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="nv">count: </span><span class="mi">50</span><span class="p">,</span> <span class="nv">sent: </span><span class="mi">120000</span><span class="p">,</span> <span class="nv">recv: </span><span class="mi">119950</span> <span class="p">}</span>
+        <span class="p">{</span> <span class="nv">time: </span><span class="nx">now</span><span class="p">(),</span> <span class="nv">count: </span><span class="mi">0</span><span class="p">,</span> <span class="nv">sent: </span><span class="mi">120000</span><span class="p">,</span> <span class="nv">recv: </span><span class="mi">120000</span> <span class="p">}</span>
+      <span class="p">]</span>
+      <span class="nv">test_queue2: </span><span class="p">{</span> <span class="nv">time: </span><span class="nx">now</span><span class="p">(),</span> <span class="nv">count: </span><span class="mi">2</span><span class="p">,</span> <span class="nv">sent: </span><span class="mi">12</span><span class="p">,</span> <span class="nv">recv: </span><span class="mi">10</span> <span class="p">}</span>
+
+    <span class="nx">influx</span><span class="p">.</span><span class="nx">writeStats</span> <span class="nx">data</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span> <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+      <span class="nx">should</span><span class="p">.</span><span class="o">not</span><span class="p">.</span><span class="nx">exist</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+      <span class="nx">done</span><span class="p">()</span>
+      <span class="k">return</span>
+
+
+  <span class="nx">it</span> <span class="s">&quot;getStats&quot;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nx">influx</span><span class="p">.</span><span class="nx">getStats</span> <span class="s">&quot;test_queue1&quot;</span><span class="p">,</span> <span class="nf">(err, resp) -&gt;</span>
+      <span class="k">if</span> <span class="o">not</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="k">if</span> <span class="nx">resp</span><span class="o">?</span>
+          <span class="nx">resp</span><span class="p">.</span><span class="nx">length</span><span class="p">.</span><span class="nx">should</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">exactly</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+          <span class="nx">done</span><span class="p">()</span>
+    <span class="k">return</span>
+
+
+  <span class="nx">it</span> <span class="s">&quot;dropStats&quot;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nx">influx</span><span class="p">.</span><span class="nx">dropStats</span> <span class="s">&quot;test_queue1&quot;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+      <span class="k">if</span> <span class="o">not</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="nx">influx</span><span class="p">.</span><span class="nx">dropStats</span> <span class="s">&quot;test_queue2&quot;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+          <span class="k">if</span> <span class="o">not</span> <span class="nx">err</span><span class="o">?</span>
+            <span class="nx">done</span><span class="p">()</span>
+          <span class="k">return</span>
+      <span class="k">return</span>
+    <span class="k">return</span>
+  <span class="k">return</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

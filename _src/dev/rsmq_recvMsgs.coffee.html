@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>rsmq_recvMsgs.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/dev/rsmq_recvMsgs.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>rsmq_recvMsgs.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">qconf = </span><span class="nx">require</span> <span class="s">&quot;./queue.json&quot;</span>
+
+<span class="nv">async = </span><span class="nx">require</span> <span class="s">&quot;async&quot;</span>
+<span class="nv">RedisSMQ = </span><span class="nx">require</span> <span class="s">&quot;rsmq&quot;</span>
+<span class="nv">rsmq = </span><span class="k">new</span> <span class="nx">RedisSMQ</span> <span class="nx">qconf</span><span class="p">.</span><span class="nx">rsmq</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;../lib/tools&quot;</span>
+
+
+<span class="nv">receive = </span><span class="nf">(i, cb) -&gt;</span>
+  <span class="nx">rsmq</span><span class="p">.</span><span class="nx">receiveMessage</span> <span class="p">{</span> <span class="nv">qname: </span><span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">},</span> <span class="nf">(err, resp) -&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nx">resp</span><span class="o">?</span><span class="p">.</span><span class="nx">id</span><span class="o">?</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>console.log "received:", resp</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+      <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+    <span class="k">return</span>
+  <span class="k">return</span>
+
+
+<span class="nv">del = </span><span class="nf">(i, id, cb) -&gt;</span>
+  <span class="nx">rsmq</span><span class="p">.</span><span class="nx">deleteMessage</span> <span class="p">{</span> <span class="nv">qname: </span><span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="nv">id: </span><span class="nx">id</span> <span class="p">},</span> <span class="nf">(err, resp) -&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nx">resp</span> <span class="o">is</span> <span class="mi">1</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+    <span class="k">return</span>
+  <span class="k">return</span>
+
+
+<span class="nv">rand = </span><span class="nf">(min, max) -&gt;</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">((</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="nx">max</span><span class="o">-</span><span class="nx">min</span><span class="p">)</span> <span class="o">+</span> <span class="nx">min</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span>
+
+
+<span class="nv">startReceiving = </span><span class="nf">(i) -&gt;</span>
+  <span class="nv">stopwatch = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+  <span class="nv">counter = </span><span class="mi">0</span>
+  <span class="nv">receiveAfterTimeout = </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="nx">counter</span><span class="o">++</span>
+    <span class="k">if</span> <span class="nx">counter</span> <span class="o">is</span> <span class="mi">101</span>
+      <span class="nv">diff = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">stopwatch</span>
+      <span class="nv">timeperrun = </span><span class="nx">diff</span> <span class="o">/</span> <span class="p">(</span><span class="nx">counter</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+      <span class="nv">runspersecond = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">((</span><span class="mi">1000</span> <span class="o">/</span> <span class="nx">timeperrun</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;rps: </span><span class="si">#{</span><span class="nx">runspersecond</span><span class="si">}</span><span class="s">&quot;</span>
+      <span class="nv">counter = </span><span class="mi">0</span>
+      <span class="nv">stopwatch = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+    <span class="nv">timeout = </span><span class="mi">1</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>console.log "next msg in #{timeout}ms"</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">setTimeout</span><span class="p">((()</span> <span class="nf">-&gt;</span>
+      <span class="nx">receive</span> <span class="nx">i</span><span class="p">,</span> <span class="nf">(err, resp) -&gt;</span>
+        <span class="k">return</span> <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="k">if</span> <span class="nx">resp</span><span class="o">?</span><span class="p">.</span><span class="nx">id</span><span class="o">?</span>
+          <span class="nx">del</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nf">(err, success) -&gt;</span>
+            <span class="k">return</span> <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+            <span class="nx">receiveAfterTimeout</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">else</span> <span class="nx">receiveAfterTimeout</span><span class="p">()</span>
+        <span class="k">return</span>
+      <span class="k">return</span>
+    <span class="p">),</span> <span class="nx">timeout</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nx">receiveAfterTimeout</span><span class="p">()</span>
+  <span class="k">return</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">dir</span> <span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span>
+<span class="k">for</span> <span class="nx">queue</span><span class="p">,</span><span class="nx">i</span> <span class="k">in</span> <span class="nx">qconf</span><span class="p">.</span><span class="nx">qnames</span>
+  <span class="nx">startReceiving</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>config.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/lib/config.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>config.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s">&quot;lodash&quot;</span>
+<span class="nv">errors = </span><span class="nx">require</span> <span class="s">&quot;./errors&quot;</span>
+<span class="nv">extend = </span><span class="nx">require</span> <span class="s">&quot;extend&quot;</span>
+<span class="nv">path = </span><span class="nx">require</span> <span class="s">&quot;path&quot;</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;./tools&quot;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>required keys of objects in config.queues array come here:</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nv">requiredQueueKeys = </span><span class="p">[</span><span class="s">&quot;qname&quot;</span><span class="p">]</span>
+
+<span class="nv">_config = </span><span class="p">{}</span>
+
+<span class="k">class</span> <span class="nx">RMConfig</span> <span class="k">extends</span> <span class="nx">require</span><span class="p">(</span><span class="s">&quot;./base&quot;</span><span class="p">)</span>
+  <span class="nv">default: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="nv">def =</span>
+      <span class="nv">influx:</span>
+        <span class="nv">host: </span><span class="s">&quot;127.0.0.1&quot;</span>
+        <span class="nv">port: </span><span class="mi">8086</span>
+        <span class="nv">database: </span><span class="s">&quot;rsmq_monitor&quot;</span>
+        <span class="nv">username: </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DBUSER</span> <span class="o">or</span> <span class="kc">null</span>
+        <span class="nv">password: </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DBPASS</span> <span class="o">or</span> <span class="kc">null</span>
+      <span class="nv">queue_defaults:</span>
+        <span class="nv">host: </span><span class="s">&quot;127.0.0.1&quot;</span>
+        <span class="nv">port: </span><span class="mi">6379</span>
+        <span class="nv">ns: </span><span class="s">&quot;rsmq&quot;</span>
+        <span class="nv">interval: </span><span class="mi">1</span>
+      <span class="nv">queues: </span><span class="p">{}</span>
+    <span class="k">return</span> <span class="nx">def</span>
+
+  <span class="nv">constructor: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="k">super</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>load the local config if the file exists</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">try</span>
+      <span class="nv">_cnf = </span><span class="nx">require</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s">&quot;../../&quot;</span><span class="p">,</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">CONF</span> <span class="o">or</span> <span class="s">&quot;config.json&quot;</span><span class="p">)</span>
+    <span class="k">catch</span> <span class="nx">_err</span>
+      <span class="k">throw</span> <span class="nx">_err</span> <span class="k">unless</span> <span class="nx">err</span><span class="o">?</span><span class="p">.</span><span class="nx">code</span> <span class="o">is</span> <span class="s">&quot;MODULE_NOT_FOUND&quot;</span>
+
+    <span class="nv">_config = </span><span class="nx">extend</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">@default</span><span class="p">(),</span> <span class="nx">_cnf</span> <span class="o">or</span> <span class="p">{}</span>
+
+    <span class="k">unless</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">_config</span><span class="p">.</span><span class="nx">queues</span><span class="p">)</span>
+      <span class="k">throw</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">create</span> <span class="s">&quot;ETYPE&quot;</span><span class="p">,</span>
+        <span class="nv">identifier: </span><span class="s">&quot;config.queues&quot;</span>
+        <span class="nv">expected: </span><span class="s">&quot;object&quot;</span>
+    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">queue</span> <span class="k">of</span> <span class="nx">_config</span><span class="p">.</span><span class="nx">queues</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>check existence of required keys</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+      <span class="k">for</span> <span class="nx">requiredQueueKey</span> <span class="k">in</span> <span class="nx">requiredQueueKeys</span>
+        <span class="k">unless</span> <span class="nx">queue</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">requiredQueueKey</span><span class="p">)</span>
+          <span class="k">throw</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">create</span> <span class="s">&quot;EMISSINGPROPERTY&quot;</span><span class="p">,</span>
+            <span class="nv">property: </span><span class="nx">requiredQueueKey</span>
+            <span class="nv">identifier: </span><span class="s">&quot;config.queues[</span><span class="si">#{</span><span class="nx">key</span><span class="si">}</span><span class="s">]&quot;</span>
+      <span class="nx">_config</span><span class="p">.</span><span class="nx">queues</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">extend</span> <span class="kc">true</span><span class="p">,</span> <span class="p">{},</span> <span class="nx">_config</span><span class="p">.</span><span class="nx">queue_defaults</span><span class="p">,</span> <span class="nx">queue</span>
+    <span class="k">return</span>
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>return config subkey "name" or complete config if no name specified
+defaults all undefined keys to null</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nv">get: </span><span class="nf">(name = &quot;&quot;) =&gt;</span>
+    <span class="k">return</span> <span class="nx">_config</span> <span class="k">if</span> <span class="nx">name</span> <span class="o">is</span> <span class="s">&quot;&quot;</span>
+    <span class="nx">_config</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">null</span> <span class="k">if</span> <span class="nx">_config</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">is</span> <span class="kc">undefined</span>
+    <span class="k">return</span> <span class="nx">_config</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
+
+<span class="nv">module.exports = </span><span class="k">new</span> <span class="nx">RMConfig</span><span class="p">()</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

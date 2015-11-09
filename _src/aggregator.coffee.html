@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>aggregator.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "_src/aggregator.coffee", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h6">
+        <a href="#%23">#</a>
+      </div>
+      <div class="heading h6">
+        <a href="#%23">#</a>
+      </div>
+      <div class="heading h6">
+        <a href="#%23">#</a>
+      </div>
+      <div class="heading h6">
+        <a href="#%23">#</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>aggregator.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s">&quot;lodash&quot;</span>
+<span class="nv">cluster = </span><span class="nx">require</span> <span class="s">&quot;cluster&quot;</span>
+<span class="nv">config = </span><span class="nx">require</span> <span class="s">&quot;./lib/config&quot;</span>
+<span class="nv">influxconn = </span><span class="nx">require</span> <span class="s">&quot;./lib/influx-connector&quot;</span>
+<span class="nv">rsmqconn = </span><span class="nx">require</span> <span class="s">&quot;./lib/rsmq-connector&quot;</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;./lib/tools&quot;</span>
+
+<span class="k">class</span> <span class="nx">RMAggregator</span> <span class="k">extends</span> <span class="nx">require</span><span class="p">(</span><span class="s">&quot;./lib/base&quot;</span><span class="p">)</span>
+  <span class="nv">constructor: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="k">super</span>
+
+    <span class="k">if</span> <span class="nx">cluster</span><span class="p">.</span><span class="nx">isMaster</span>
+      <span class="nx">@initMaster</span><span class="p">()</span>
+    <span class="k">else</span>
+      <span class="nx">@initWorker</span><span class="p">()</span>
+    <span class="k">return</span>
+
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="%23">
+  <h6>
+    <a href="#%23" name="%23" class="pilcrow">&#182;</a>
+    #
+  </h6>
+</div>
+
+
+<p>MASTER FUNCTIONS #</p>
+
+
+<div class="pilwrap" id="%23_1">
+  <h6>
+    <a href="#%23_1" name="%23_1" class="pilcrow">&#182;</a>
+    #
+  </h6>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nv">initMaster: </span><span class="p">()</span> <span class="o">=&gt;</span>
+    <span class="nx">@debug</span> <span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">()</span>
+    <span class="nx">@debug</span> <span class="s">&quot;MASTER&quot;</span>
+    <span class="nx">@spawnWorkers</span><span class="p">()</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>influxconn.maintainContinuousQueries (err) =>
+    if err?
+        @logErr err
+        throw err</p>
+
+
+<div class="highlight"><pre><code><span class="err">@</span><span class="nx">spawnWorkers</span><span class="p">()</span>
+<span class="k">return</span>
+</code></pre></div>
+
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">return</span>
+
+  <span class="nv">spawnWorkers: </span><span class="p">()</span> <span class="o">=&gt;</span>
+    <span class="vi">@queues = </span><span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;queues&quot;</span><span class="p">)</span>
+    <span class="vi">@workers = </span><span class="p">{}</span>
+    <span class="vi">@timeouts = </span><span class="p">[]</span>
+
+    <span class="nx">cluster</span><span class="p">.</span><span class="nx">on</span> <span class="s">&quot;fork&quot;</span><span class="p">,</span> <span class="nf">(worker) =&gt;</span>
+      <span class="nx">@timeouts</span><span class="p">[</span><span class="nx">worker</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">setTimeout</span><span class="p">((()</span> <span class="nf">-&gt;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&quot;something is wrong with </span><span class="si">#{</span><span class="nx">worker</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">),</span> <span class="mi">2000</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="nx">cluster</span><span class="p">.</span><span class="nx">on</span> <span class="s">&quot;online&quot;</span><span class="p">,</span> <span class="nf">(worker) =&gt;</span>
+      <span class="nx">clearTimeout</span> <span class="nx">@timeouts</span><span class="p">[</span><span class="nx">worker</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span>
+      <span class="k">return</span>
+    <span class="nx">cluster</span><span class="p">.</span><span class="nx">on</span> <span class="s">&quot;exit&quot;</span><span class="p">,</span> <span class="nf">(worker) =&gt;</span>
+      <span class="nx">clearTimeout</span> <span class="nx">@timeouts</span><span class="p">[</span><span class="nx">worker</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;something is wrong with </span><span class="si">#{</span><span class="nx">worker</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="s">&quot;</span>
+      <span class="k">for</span> <span class="nx">_k</span><span class="p">,</span> <span class="nx">_v</span> <span class="k">of</span> <span class="nx">@workers</span>
+        <span class="k">if</span> <span class="nx">_v</span><span class="p">.</span><span class="nx">id</span> <span class="o">is</span> <span class="nx">worker</span><span class="p">.</span><span class="nx">id</span>
+          <span class="k">delete</span> <span class="nx">@workers</span><span class="p">[</span><span class="nx">_k</span><span class="p">]</span>
+      <span class="nx">@respawnWorkers</span><span class="p">()</span>
+      <span class="k">return</span>
+
+    <span class="nx">@respawnWorkers</span><span class="p">()</span>
+    <span class="k">return</span>
+
+  <span class="nv">respawnWorkers: </span><span class="p">()</span> <span class="o">=&gt;</span>
+    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">queue</span> <span class="k">of</span> <span class="nx">@queues</span>
+      <span class="nx">@workers</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">cluster</span><span class="p">.</span><span class="nx">fork</span><span class="p">({</span><span class="nv">QKEY: </span><span class="nx">key</span><span class="p">})</span> <span class="k">unless</span> <span class="nx">@workers</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="o">?</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">@workers</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">isDead</span><span class="p">()</span>
+    <span class="k">return</span>
+
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="%23">
+  <h6>
+    <a href="#%23" name="%23" class="pilcrow">&#182;</a>
+    #
+  </h6>
+</div>
+
+
+<p>WORKER FUNCTIONS #</p>
+
+
+<div class="pilwrap" id="%23_1">
+  <h6>
+    <a href="#%23_1" name="%23_1" class="pilcrow">&#182;</a>
+    #
+  </h6>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+  <span class="nv">initWorker: </span><span class="p">()</span> <span class="o">=&gt;</span>
+    <span class="vi">@QKEY = </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">QKEY</span>
+    <span class="nx">@debug</span> <span class="s">&quot;WORKER for Key: </span><span class="si">#{</span><span class="nx">@QKEY</span><span class="si">}</span><span class="s"> created&quot;</span>
+    <span class="vi">@localconf = </span><span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;queues&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">[</span><span class="nx">@QKEY</span><span class="p">]</span>
+    <span class="vi">@rsmq = </span><span class="k">new</span> <span class="nx">rsmqconn</span><span class="p">(</span><span class="nx">@localconf</span><span class="p">)</span>
+    <span class="nx">@work</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nv">work: </span><span class="nf">(firstrun = false) =&gt;</span>
+    <span class="nv">starttime = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+    <span class="nx">@debug</span> <span class="s">&quot;get stats (</span><span class="si">#{</span><span class="nx">@localconf</span><span class="p">.</span><span class="nx">qname</span><span class="si">}</span><span class="s">) from rsmq&quot;</span>
+    <span class="nx">@rsmq</span><span class="p">.</span><span class="nx">getStats</span> <span class="nx">@localconf</span><span class="p">.</span><span class="nx">qname</span><span class="p">,</span> <span class="nf">(err, resp) =&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="nx">@logErr</span> <span class="nx">err</span>
+        <span class="nx">@nextIteration</span><span class="p">(</span><span class="nx">starttime</span><span class="p">)</span>
+        <span class="k">return</span>
+
+      <span class="k">if</span> <span class="nx">firstrun</span>
+        <span class="vi">@lastsent = </span><span class="nx">resp</span><span class="p">.</span><span class="nx">totalsent</span>
+        <span class="vi">@lastrecv = </span><span class="nx">resp</span><span class="p">.</span><span class="nx">totalrecv</span>
+        <span class="nx">@nextIteration</span><span class="p">(</span><span class="nx">starttime</span><span class="p">)</span>
+        <span class="k">return</span>
+
+      <span class="nv">payload =</span>
+        <span class="nv">time: </span><span class="nx">tools</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+        <span class="nv">count: </span><span class="nx">resp</span><span class="p">.</span><span class="nx">msgs</span>
+        <span class="nv">sent: </span><span class="nx">resp</span><span class="p">.</span><span class="nx">totalsent</span> <span class="o">-</span> <span class="nx">@lastsent</span>
+        <span class="nv">recv: </span><span class="nx">resp</span><span class="p">.</span><span class="nx">totalrecv</span> <span class="o">-</span> <span class="nx">@lastrecv</span>
+
+      <span class="vi">@lastsent = </span><span class="nx">resp</span><span class="p">.</span><span class="nx">totalsent</span>
+      <span class="vi">@lastrecv = </span><span class="nx">resp</span><span class="p">.</span><span class="nx">totalrecv</span>
+
+      <span class="nv">data = </span><span class="p">{}</span>
+      <span class="nx">data</span><span class="p">[</span><span class="nx">@QKEY</span><span class="p">]</span> <span class="o">=</span> <span class="nx">payload</span>
+      <span class="nx">@debug</span> <span class="s">&quot;write stats to influx...&quot;</span>
+      <span class="nx">influxconn</span><span class="p">.</span><span class="nx">writeStats</span> <span class="nx">data</span><span class="p">,</span> <span class="nf">(err) =&gt;</span>
+        <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+          <span class="nx">@logErr</span> <span class="nx">err</span>
+          <span class="nx">@nextIteration</span><span class="p">(</span><span class="nx">starttime</span><span class="p">)</span>
+          <span class="k">return</span>
+
+        <span class="nx">@debug</span> <span class="s">&quot;success!&quot;</span>
+        <span class="nx">@nextIteration</span><span class="p">(</span><span class="nx">starttime</span><span class="p">)</span>
+        <span class="k">return</span>
+      <span class="k">return</span>
+    <span class="k">return</span>
+
+  <span class="nv">nextIteration: </span><span class="nf">(starttime) =&gt;</span>
+    <span class="nx">setTimeout</span> <span class="nx">@work</span><span class="p">,</span> <span class="p">(</span><span class="nx">@localconf</span><span class="p">.</span><span class="nx">interval</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">starttime</span><span class="p">)</span>
+    <span class="k">return</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>Run the App!</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="k">new</span> <span class="nx">RMAggregator</span><span class="p">()</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

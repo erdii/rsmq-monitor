@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>api_v1.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/routes/api_v1.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>api_v1.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s">&quot;lodash&quot;</span>
+<span class="nv">express = </span><span class="nx">require</span> <span class="s">&quot;express&quot;</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;../lib/tools&quot;</span>
+
+<span class="k">class</span> <span class="nx">RMAPIv1</span> <span class="k">extends</span> <span class="nx">require</span><span class="p">(</span><span class="s">&quot;../lib/base&quot;</span><span class="p">)</span>
+  <span class="nv">model: </span><span class="nx">require</span> <span class="s">&quot;../models/api_v1&quot;</span>
+
+  <span class="nv">constructor: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="k">super</span>
+    <span class="k">return</span>
+
+  <span class="nv">createRoutes: </span><span class="nf">(baseroute, app) =&gt;</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">baseroute</span> <span class="o">+</span> <span class="s">&quot;/list&quot;</span><span class="p">,</span> <span class="nx">@listQueues</span><span class="p">)</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">baseroute</span> <span class="o">+</span> <span class="s">&quot;/:key&quot;</span><span class="p">,</span> <span class="nx">@getAllStats</span><span class="p">)</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">baseroute</span> <span class="o">+</span> <span class="s">&quot;/:key/count&quot;</span><span class="p">,</span> <span class="nx">@getCount</span><span class="p">)</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">baseroute</span> <span class="o">+</span> <span class="s">&quot;/:key/recv&quot;</span><span class="p">,</span> <span class="nx">@getReceived</span><span class="p">)</span>
+    <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">baseroute</span> <span class="o">+</span> <span class="s">&quot;/:key/sent&quot;</span><span class="p">,</span> <span class="nx">@getSent</span><span class="p">)</span>
+    <span class="k">return</span>
+
+  <span class="nv">handleAnswer: </span><span class="nf">(res, healthyStatusCode = 200) -&gt;</span>
+    <span class="k">return</span> <span class="nf">(err, resp) -&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="nv">code = </span><span class="nx">err</span><span class="p">.</span><span class="nx">statusCode</span> <span class="o">or</span> <span class="mi">500</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="nx">code</span><span class="p">).</span><span class="nx">send</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+
+      <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="nx">healthyStatusCode</span><span class="p">).</span><span class="nx">send</span><span class="p">(</span><span class="nx">resp</span><span class="p">)</span>
+      <span class="k">return</span>
+
+  <span class="nv">listQueues: </span><span class="nf">(req, res) =&gt;</span>
+    <span class="nx">@model</span><span class="p">.</span><span class="nx">listQueues</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">@handleAnswer</span><span class="p">(</span><span class="nx">res</span><span class="p">))</span>
+    <span class="k">return</span>
+
+  <span class="nv">getAllStats: </span><span class="nf">(req, res) =&gt;</span>
+    <span class="nx">@model</span><span class="p">.</span><span class="nx">getAllStats</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">@handleAnswer</span><span class="p">(</span><span class="nx">res</span><span class="p">))</span>
+    <span class="k">return</span>
+
+  <span class="nv">getCount: </span><span class="nf">(req, res) =&gt;</span>
+    <span class="nx">@model</span><span class="p">.</span><span class="nx">getCount</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">@handleAnswer</span><span class="p">(</span><span class="nx">res</span><span class="p">))</span>
+    <span class="k">return</span>
+
+  <span class="nv">getReceived: </span><span class="nf">(req, res) =&gt;</span>
+    <span class="nx">@model</span><span class="p">.</span><span class="nx">getReceived</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">@handleAnswer</span><span class="p">(</span><span class="nx">res</span><span class="p">))</span>
+    <span class="k">return</span>
+
+  <span class="nv">getSent: </span><span class="nf">(req, res) =&gt;</span>
+    <span class="nx">@model</span><span class="p">.</span><span class="nx">getSent</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">@handleAnswer</span><span class="p">(</span><span class="nx">res</span><span class="p">))</span>
+    <span class="k">return</span>
+
+<span class="nv">module.exports = </span><span class="k">new</span> <span class="nx">RMAPIv1</span><span class="p">()</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>influx-connector.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/lib/influx-connector.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>influx-connector.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s">&quot;lodash&quot;</span>
+<span class="nv">async = </span><span class="nx">require</span> <span class="s">&quot;async&quot;</span>
+<span class="nv">config = </span><span class="nx">require</span> <span class="s">&quot;./config&quot;</span>
+<span class="nv">errors = </span><span class="nx">require</span> <span class="s">&quot;./errors&quot;</span>
+<span class="nv">extend = </span><span class="nx">require</span> <span class="s">&quot;extend&quot;</span>
+<span class="nv">influx = </span><span class="nx">require</span> <span class="s">&quot;influx&quot;</span>
+<span class="nv">tools = </span><span class="nx">require</span> <span class="s">&quot;./tools&quot;</span>
+
+<span class="k">class</span> <span class="nx">RMInfluxConnector</span> <span class="k">extends</span> <span class="nx">require</span><span class="p">(</span><span class="s">&quot;./base&quot;</span><span class="p">)</span>
+  <span class="nv">constructor: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="k">super</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>connect to the InfluxDB server</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nv">options = </span><span class="nx">config</span><span class="p">.</span><span class="nx">get</span> <span class="s">&quot;influx&quot;</span>
+    <span class="vi">@client = </span><span class="nx">influx</span> <span class="nx">options</span>
+    <span class="vi">@queues = </span><span class="nx">config</span><span class="p">.</span><span class="nx">get</span> <span class="s">&quot;queues&quot;</span>
+    <span class="k">return</span>
+
+  <span class="nv">assembleOpts: </span><span class="nf">(opts, selector, key) -&gt;</span>
+    <span class="nx">@debug</span> <span class="nx">opts</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">key</span>
+
+    <span class="nv">now = </span><span class="nx">tools</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+    <span class="nv">def =</span>
+      <span class="nv">start: </span><span class="nx">now</span> <span class="o">-</span> <span class="mi">3600</span>
+      <span class="nv">end: </span><span class="nx">now</span>
+      <span class="nv">group: </span><span class="mi">60</span>
+
+    <span class="nv">opts = </span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">def</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+
+    <span class="nv">_opts =</span>
+      <span class="nv">where: </span><span class="s">&quot;time &gt; </span><span class="si">#{</span><span class="nx">opts</span><span class="p">.</span><span class="nx">start</span><span class="si">}</span><span class="s">s&quot;</span>
+
+    <span class="nx">_opts</span><span class="p">.</span><span class="nx">where</span> <span class="o">+=</span> <span class="s">&quot; AND time &lt; </span><span class="si">#{</span><span class="nx">opts</span><span class="p">.</span><span class="nx">end</span><span class="si">}</span><span class="s">s&quot;</span> <span class="k">if</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">end</span><span class="o">?</span>
+    <span class="nv">_opts.limit = </span><span class="nx">opts</span><span class="p">.</span><span class="nx">limit</span> <span class="k">if</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">limit</span><span class="o">?</span>
+
+    <span class="k">switch</span> <span class="nx">selector</span>
+      <span class="k">when</span> <span class="s">&quot;all&quot;</span>
+        <span class="nv">_fields = </span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">,</span> <span class="s">&quot;recv&quot;</span><span class="p">,</span> <span class="s">&quot;sent&quot;</span><span class="p">]</span>
+      <span class="k">when</span> <span class="s">&quot;count&quot;</span>
+        <span class="nv">_fields = </span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]</span>
+      <span class="k">when</span> <span class="s">&quot;recv&quot;</span>
+        <span class="nv">_fields = </span><span class="p">[</span><span class="s">&quot;recv&quot;</span><span class="p">]</span>
+      <span class="k">when</span> <span class="s">&quot;sent&quot;</span>
+        <span class="nv">_fields = </span><span class="p">[</span><span class="s">&quot;sent&quot;</span><span class="p">]</span>
+
+    <span class="nv">_opts.fields = </span><span class="s">&quot;&quot;</span>
+    <span class="k">for</span> <span class="nx">_field</span> <span class="k">in</span> <span class="nx">_fields</span>
+      <span class="nx">_opts</span><span class="p">.</span><span class="nx">fields</span> <span class="o">+=</span> <span class="nx">@packField</span><span class="p">(</span><span class="nx">_field</span><span class="p">,</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">group</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span>
+    <span class="nv">_opts.fields = </span><span class="nx">_opts</span><span class="p">.</span><span class="nx">fields</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nv">_opts.group = </span><span class="s">&quot;time(</span><span class="si">#{</span><span class="nx">opts</span><span class="p">.</span><span class="nx">group</span><span class="si">}</span><span class="s">s)&quot;</span> <span class="k">unless</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">group</span> <span class="o">&lt;=</span> <span class="nx">@queues</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">interval</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nx">_opts</span><span class="p">,</span> <span class="nx">opts</span><span class="p">]</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>dropStats(<code>key</code>, cb)
+<em>String</em> <code>key</code>: the rsmq-key, as defined in the config, to be dropped</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nv">dropStats: </span><span class="nf">(key, cb) =&gt;</span>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">dropMeasurement</span> <span class="nx">key</span><span class="p">,</span> <span class="nf">(err, resp) =&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>wtf?! dat bug...</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="k">if</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span> <span class="o">is</span> <span class="s">&quot;database not open&quot;</span>
+          <span class="nx">@debug</span> <span class="s">&quot;Bug: https://github.com/influxdb/influxdb/issues/4615&quot;</span>
+          <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span>
+          <span class="k">return</span>
+        <span class="nx">@debug</span> <span class="s">&quot;error dropping stats&quot;</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span>
+    <span class="k">return</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>getStats(<code>key</code>, <code>selector</code> <code>_opts</code>, cb)</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nv">getStats: </span><span class="nf">(key, selector, _opts, cb) =&gt;</span>
+    <span class="k">if</span> <span class="k">typeof</span> <span class="nx">_opts</span> <span class="o">is</span> <span class="s">&quot;function&quot;</span>
+      <span class="nv">cb = </span><span class="nx">_opts</span>
+      <span class="nv">_opts = </span><span class="p">{}</span>
+
+    <span class="nx">@debug</span> <span class="s">&quot;hallii&quot;</span>
+    <span class="p">[</span><span class="nx">opts</span><span class="p">,</span> <span class="nx">opts_raw</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@assembleOpts</span><span class="p">(</span><span class="nx">_opts</span><span class="p">,</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
+    <span class="nx">@debug</span> <span class="s">&quot;halloo?&quot;</span>
+
+    <span class="nv">opts.fields = </span><span class="nx">tools</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">opts</span><span class="p">.</span><span class="nx">fields</span> <span class="o">or</span> <span class="s">&quot;*&quot;</span><span class="p">)</span>
+    <span class="nv">querySelect = </span><span class="s">&quot;SELECT </span><span class="si">#{</span><span class="nx">tools</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">opts</span><span class="p">.</span><span class="nx">fields</span><span class="p">)</span><span class="si">}</span><span class="s"> &quot;</span>
+    <span class="nv">queryWhere = </span><span class="k">if</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">where</span><span class="o">?</span> <span class="k">then</span> <span class="s">&quot; WHERE </span><span class="si">#{</span><span class="nx">tools</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">opts</span><span class="p">.</span><span class="nx">where</span><span class="p">)</span><span class="si">}</span><span class="s">&quot;</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+    <span class="nv">queryGroup = </span><span class="k">if</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">group</span><span class="o">?</span> <span class="k">then</span> <span class="s">&quot; GROUP BY </span><span class="si">#{</span><span class="nx">tools</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">opts</span><span class="p">.</span><span class="nx">group</span><span class="p">)</span><span class="si">}</span><span class="s">&quot;</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+    <span class="nv">queryLimit = </span><span class="k">if</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">limit</span><span class="o">?</span> <span class="k">then</span> <span class="s">&quot; LIMIT </span><span class="si">#{</span><span class="nx">tools</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">opts</span><span class="p">.</span><span class="nx">limit</span><span class="p">)</span><span class="si">}</span><span class="s">&quot;</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+
+    <span class="nv">queryString = </span><span class="nx">querySelect</span> <span class="o">+</span> <span class="s">&quot;FROM </span><span class="si">#{</span><span class="nx">key</span><span class="si">}</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nx">queryWhere</span> <span class="o">+</span> <span class="nx">queryGroup</span> <span class="o">+</span> <span class="nx">queryLimit</span>
+    <span class="nx">@debug</span> <span class="nx">queryString</span>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">query</span> <span class="nx">queryString</span><span class="p">,</span> <span class="nf">(err, resp) =&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+
+      <span class="k">unless</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">resp</span><span class="p">)</span> <span class="o">and</span> <span class="nx">resp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">?</span>
+        <span class="nx">cb</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">create</span> <span class="s">&quot;EINVALIDRESPONSE&quot;</span><span class="p">,</span>
+          <span class="nv">from: </span><span class="s">&quot;InfluxDB&quot;</span>
+          <span class="nv">resp: </span><span class="nx">resp</span>
+        <span class="k">return</span>
+
+      <span class="nx">@debug</span> <span class="s">&quot;answer length: </span><span class="si">#{</span><span class="nx">resp</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">length</span><span class="si">}</span><span class="s">&quot;</span>
+      <span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">resp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">opts_raw</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">return</span>
+
+  <span class="nv">packField: </span><span class="nf">(field, group, key) =&gt;</span>
+    <span class="k">if</span> <span class="nx">group</span> <span class="o">&lt;=</span> <span class="nx">@queues</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">interval</span>
+      <span class="k">return</span> <span class="nx">field</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="s">&quot;mean(</span><span class="si">#{</span><span class="nx">field</span><span class="si">}</span><span class="s">) as </span><span class="si">#{</span><span class="nx">field</span><span class="si">}</span><span class="s">&quot;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>writeStats(<code>data</code>, cb)
+<em>object</em> <code>data</code>: {
+  <code>key</code>: [
+    <em>object</em> <code>sample</code>,
+    ...
+  ],
+  ...
+}
+* <code>data</code> contains either an array of <code>samples</code> or a single <code>sample</code> for each queue (identified by <code>key</code>) for which you want to send <code>samples</code>:
+* <code>key</code>: the queue's key - as defined in config.json
+* <em>array</em> <code>sample</code>
+    * <code>sample</code>: an object in the following form:
+        * <code>time</code>: the unix timestamp that defines the measurement time
+        * <code>count</code>: the number of messages currently in the queue
+        * <code>sent</code>: total number of messages ever sent to the queue
+        * <code>recv</code>: total number of messages ever received by workers</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nv">writeStats: </span><span class="nf">(data, cb) =&gt;</span>
+    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">measurement</span> <span class="k">of</span> <span class="nx">data</span>
+      <span class="nv">tags = </span><span class="p">{</span> <span class="nv">interval: </span><span class="nx">@queues</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">interval</span> <span class="o">or</span> <span class="kc">null</span> <span class="p">}</span>
+      <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">measurement</span><span class="p">)</span>
+        <span class="k">for</span> <span class="nx">sample</span><span class="p">,</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">measurement</span>
+          <span class="nx">measurement</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">sample</span><span class="p">,</span> <span class="nx">tags</span><span class="p">]</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">measurement</span><span class="p">)</span>
+        <span class="nx">data</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="nx">measurement</span><span class="p">,</span> <span class="nx">tags</span><span class="p">]]</span>
+      <span class="k">else</span>
+        <span class="nx">cb</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">create</span> <span class="s">&quot;ETYPE&quot;</span><span class="p">,</span>
+          <span class="nv">identifier: </span><span class="s">&quot;data.</span><span class="si">#{</span><span class="nx">key</span><span class="si">}</span><span class="s">&quot;</span>
+          <span class="nv">expected: </span><span class="s">&quot;array of objects or object&quot;</span>
+        <span class="k">return</span>
+
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">writeSeries</span> <span class="nx">data</span><span class="p">,</span> <span class="p">{</span><span class="nx">precision</span><span class="o">:</span><span class="s">&#39;s&#39;</span><span class="p">},</span> <span class="nf">(err) =&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span><span class="o">?</span>
+        <span class="nx">cb</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="k">return</span>
+      <span class="nx">cb</span><span class="p">()</span>
+      <span class="k">return</span>
+    <span class="k">return</span>
+
+
+<span class="nv">module.exports = </span><span class="k">new</span> <span class="nx">RMInfluxConnector</span><span class="p">()</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

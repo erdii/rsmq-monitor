@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>README.md</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "", thisFile = "README.md", defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h2">
+        <a href="#concept">Concept</a>
+      </div>
+      <div class="heading h2">
+        <a href="#install">install</a>
+      </div>
+      <div class="heading h2">
+        <a href="#config">Config</a>
+      </div>
+      <div class="heading h2">
+        <a href="#run">run</a>
+      </div>
+      <div class="heading h3">
+        <a href="#aggregator">Aggregator</a>
+      </div>
+      <div class="heading h3">
+        <a href="#stats">Stats</a>
+      </div>
+      <div class="heading h2">
+        <a href="#%23%23%20methods">## Methods</a>
+      </div>
+      <div class="heading h3">
+        <a href="#rest">REST</a>
+      </div>
+      <div class="heading h3">
+        <a href="#influx-connector">Influx-connector</a>
+      </div>
+      <div class="heading h2">
+        <a href="#development">Development</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="docs markdown"><p># RSMQ-Monitor
+A tool to monitor one or more Redis Simple Message Queues</p>
+
+
+<div class="pilwrap" id="concept">
+  <h2>
+    <a href="#concept" name="concept" class="pilcrow">&#182;</a>
+    Concept
+  </h2>
+</div>
+
+
+<p>Multiple queues will be polled by a defined interval for their stats to generate a history over time of the following metrics:</p>
+
+<ul>
+<li><strong>count</strong> The current count of messages within the queue</li>
+<li><strong>received</strong> The count of messages the queue received</li>
+<li><strong>sent</strong> The count of messages the queue could process</li>
+</ul>
+
+<p>The System will be split into multiple modules to increase the stability.</p>
+
+<ul>
+<li><strong>Aggregator</strong>: A process that polls the queues and pushes the data into an InfluxDB instance (<a href="https://influxdb.com/">InfluxDB</a>)</li>
+<li><strong>Stats</strong>: A server that will query the database and returns a graph as an image or just the data.</li>
+</ul>
+
+
+<div class="pilwrap" id="install">
+  <h2>
+    <a href="#install" name="install" class="pilcrow">&#182;</a>
+    install
+  </h2>
+</div>
+
+
+<p>TODO</p>
+
+
+<div class="pilwrap" id="config">
+  <h2>
+    <a href="#config" name="config" class="pilcrow">&#182;</a>
+    Config
+  </h2>
+</div>
+
+
+<p>To configure all the systems a config.json has to be defined with the following settings.</p>
+
+<ul>
+<li><strong>influx</strong>: <em>( <code>Object</code> )</em>: The influx connection options
+<ul><li><strong>host</strong>: <em>( <code>String</code> default: <code>127.0.0.1</code> )</em>: the InfluxDB host</li>
+<li><strong>port</strong>: <em>( <code>Number</code> default: <code>8086</code> )</em>: the InfluxDB http-API port</li>
+<li><strong>database</strong>: <em>( <code>String</code> default: <code>rsmq_monitor</code> )</em>: the DB name</li>
+<li><strong>username</strong>: <em>( <code>String</code> default: null)</em>: the DB username <em>(can also be set via envvar DBUSER)</em></li>
+<li><strong>password</strong>: <em>( <code>String</code> default: null)</em>: the DB password <em>(can also be set via envvar DBPASS)</em></li></ul></li>
+<li><strong>queue_defaults</strong>: <em>( <code>Object</code> )</em>: A default rsmq configuration
+<ul><li><strong>queue_defaults.host</strong>: <em>( <code>String</code> default: <code>127.0.0.1</code> )</em>: The default host for all queues</li>
+<li><strong>queue_defaults.port</strong>: <em>( <code>Number</code> default: <code>6379</code> )</em>: The default port for all queues</li>
+<li><strong>queue_defaults.ns</strong>: <em>( <code>String</code> default: <code>rsmq</code> )</em>: The default namespace for all queues</li>
+<li><strong>queue_defaults.interval</strong>: <em>( <code>Number</code> default: <code>1</code> )</em>: the poll interval in seconds</li></ul></li>
+<li><strong>queues</strong>: <em>( <code>Object[]</code> )</em>:
+<ul><li><strong>queues[].key</strong>: <em>( <code>String</code> <strong>required</strong> )</em>: the queues identifier that will be displayed with the stats</li>
+<li><strong>queues[].qname</strong>: <em>( <code>String</code> <strong>required</strong> )</em>: the queues qname on the rsmq server</li>
+<li><strong>queues[].host</strong>: <em>( <code>String</code> )</em>: the queues rsmq host <em>defaults to queue_defaults.host</em></li>
+<li><strong>queues[].port</strong>: <em>( <code>String</code> )</em>: the queues rsmq port <em>defaults to queue_defaults.port</em></li>
+<li><strong>queues[].ns</strong>: <em>( <code>String</code> )</em>: the queues rsmq namespace <em>defaults to queue_defaults.ns</em></li>
+<li><strong>queues[].interval</strong>: <em>( <code>Number</code>)</em>: the poll interval in seconds <em>defaults to queue_defaults.interval</em> <br />
+TODO:  add additional retention settings</li></ul></li>
+</ul>
+
+
+<div class="pilwrap" id="run">
+  <h2>
+    <a href="#run" name="run" class="pilcrow">&#182;</a>
+    run
+  </h2>
+</div>
+
+
+
+<div class="pilwrap" id="aggregator">
+  <h3>
+    <a href="#aggregator" name="aggregator" class="pilcrow">&#182;</a>
+    Aggregator
+  </h3>
+</div>
+
+
+<p><code>node app/aggregator.js</code></p>
+
+
+<div class="pilwrap" id="stats">
+  <h3>
+    <a href="#stats" name="stats" class="pilcrow">&#182;</a>
+    Stats
+  </h3>
+</div>
+
+
+
+<div class="pilwrap" id="%23%23%20methods">
+  <h2>
+    <a href="#%23%23%20methods" name="%23%23%20methods" class="pilcrow">&#182;</a>
+    ## Methods
+  </h2>
+</div>
+
+
+
+<div class="pilwrap" id="rest">
+  <h3>
+    <a href="#rest" name="rest" class="pilcrow">&#182;</a>
+    REST
+  </h3>
+</div>
+
+
+<ul>
+<li><p><strong>listQueues</strong>
+```
+GET /api/v1/list</p>
+
+<p>Content-Type: application/json
+Response: {
+keys: ["key1", "key2", ...]
+}
+```</p></li>
+</ul>
+
+<p>All methods below have the following (optional) QueryParams: <strong>?start=bla&amp;end=blubb&amp;group=xy</strong>
+  * <strong><code>start</code></strong>: (<em>String</em> default: <code>now() - 1h</code>): a timestamp plus the unit eg: "1446818686156ms"
+  * <strong><code>end</code></strong>: (<em>String</em> default: <code>now()</code>): same as <code>start</code>
+  * <strong><code>group</code></strong>: (<em>String</em>): time interval to group by (mean values are taken for the specified intervals) eg: "1m" to group by 1 minutes or "15m", "1h", "20s"
+  * <strong><code>limit</code></strong>: (<em>Number</em>): the maximum number of timeslots in the answer</p>
+
+<ul>
+<li><strong>getAllStats</strong>
+<code>
+GET /api/v1/:KEY
+Content-Type: application/json
+Response:
+{
+start: 1446246813
+end: 1446646913
+group: "5m"
+stats: [
+  { time: 1446246813, count: 112, recv: 13023, sent: 12911 },
+  { time: 1446247113, count: 0, recv: 13023, sent: 13023 },
+  { time: 1446247413, count: 45, recv: 13068, sent: 13023 },
+  ...
+]
+}
+</code></li>
+<li><strong>getCount</strong>
+<code>
+GET /api/v1/:KEY/count
+Content-Type: application/json
+Response:
+{
+start: 1446246813
+end: 1446646913
+group: "5m"
+stats: [
+  { time: t, count: x },
+  { time: t, count: x },
+  { time: t, count: x },
+  ...
+]
+}
+</code></li>
+<li><strong>getReceived</strong>
+<code>
+GET /api/v1/:KEY/recv
+Content-Type: application/json
+Response:
+{
+start: 1446246813
+end: 1446646913
+group: "5m"
+stats: [
+  { time: t, recv: y },
+  { time: t, recv: y },
+  { time: t, recv: y },
+  ...
+]
+}
+</code></li>
+<li><strong>getSent</strong>
+<code>
+GET /api/v1/:KEY/sent
+Content-Type: application/json
+Response:
+{
+start: 1446246813483
+end: 1446646913483
+group: "5m"
+stats: [
+  { time: t, sent: z },
+  { time: t, sent: z },
+  { time: t, sent: z },
+  ...
+]
+}
+</code></li>
+</ul>
+
+
+<div class="pilwrap" id="influx-connector">
+  <h3>
+    <a href="#influx-connector" name="influx-connector" class="pilcrow">&#182;</a>
+    Influx-connector
+  </h3>
+</div>
+
+
+<ul>
+<li><strong>writeStats</strong></li>
+<li><strong>getStats</strong></li>
+<li><strong>dropStats</strong></li>
+</ul>
+
+
+<div class="pilwrap" id="development">
+  <h2>
+    <a href="#development" name="development" class="pilcrow">&#182;</a>
+    Development
+  </h2>
+</div>
+
+
+<p>TODO:
+Tests:
+  * lib: base, errors, rsmq-connector, tools
+  * routes, models: api_v1
+  * root: aggregator, rest</p>
+
+<p>REST: new endpoints:
+- latest: latest Probe
+- stats: avg, min, max of defined Interval</p>
+
+<p>Build with <code>grunt build</code>
+Watch with <code>grunt watch</code> or <code>grunt bwatch</code> (build and watch then)
+Start with <code>NODE_ENV=development DEBUG=rsmq* node-dev app/aggregator.js</code></p></div>
+  </div>
+</body>
+</html>

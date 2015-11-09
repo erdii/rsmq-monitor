@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>fromconstructor.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../", thisFile = "_src/dev/fromconstructor.coffee", defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>fromconstructor.coffee</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="k">class</span> <span class="nx">Bla</span>
+  <span class="nv">constructor: </span><span class="nf">(type) -&gt;</span>
+    <span class="k">if</span> <span class="nx">type</span> <span class="o">is</span> <span class="mi">1</span>
+      <span class="nx">@one</span><span class="p">()</span>
+    <span class="k">else</span>
+      <span class="nx">@two</span><span class="p">()</span>
+
+  <span class="nv">one: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;one!&quot;</span>
+    <span class="k">return</span>
+
+  <span class="nv">two: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;two!&quot;</span>
+    <span class="k">return</span>
+
+<span class="k">new</span> <span class="nx">Bla</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">new</span> <span class="nx">Bla</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>
