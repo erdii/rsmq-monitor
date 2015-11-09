@@ -2,6 +2,7 @@ module.exports = ( grunt ) ->
 	grunt.initConfig
 		pkg:   grunt.file.readJSON( 'package.json' )
 
+##########
 		watch:
 			gruntfile:
 				files: ["Gruntfile.coffee"]
@@ -12,8 +13,15 @@ module.exports = ( grunt ) ->
 				files: [
 					"_src/**/*.coffee"
 				]
-				tasks: [ "newer:coffee", "newer:copy" ]
+				tasks: [ "newer:coffeelint", "newer:coffee" ]
 
+			jsons:
+				files: [
+					"_src/**/*.json"
+				]
+				tasks: [ "newer:copy" ]
+
+###########
 		coffee:
 			app:
 				expand: true
@@ -22,6 +30,13 @@ module.exports = ( grunt ) ->
 				dest: "app/"
 				ext: ".js"
 
+###############
+		coffeelint:
+			app: ["_src/**/*.coffee"]
+			options:
+				configFile: "coffeelint.json"
+
+#########
 		copy:
 			app:
 				expand: true
@@ -30,12 +45,14 @@ module.exports = ( grunt ) ->
 				dest: "app/"
 				ext: ".json"
 
+##########
 		clean:
 			app:
 				src: ["app/*"]
 			doc:
 				src: ["doc/*"]
 
+###########
 		docker:
 			app:
 				src: [
@@ -45,6 +62,13 @@ module.exports = ( grunt ) ->
 				options:
 					out: "doc/"
 
+###############
+		"gh-pages":
+			src: ["**"]
+			options:
+				base: "doc"
+
+############
 		mochacli:
 			options:
 				require: ["should"]
@@ -71,17 +95,31 @@ module.exports = ( grunt ) ->
 					env:
 						CONF: "./app/test/lib/configs/config_influx.json"
 
+
+###########
+		rename:
+			docIndex:
+				files: [
+					{
+						src: ["doc/README.md.html"]
+						dest: ["doc/index.html"]
+					}
+				]
+
 	# Load npm modules
+	grunt.loadNpmTasks "grunt-coffeelint"
 	grunt.loadNpmTasks "grunt-contrib-clean"
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-copy"
+	grunt.loadNpmTasks "grunt-contrib-rename"
 	grunt.loadNpmTasks "grunt-contrib-watch"
 	grunt.loadNpmTasks "grunt-docker"
+	grunt.loadNpmTasks "grunt-gh-pages"
 	grunt.loadNpmTasks "grunt-mocha-cli"
 	grunt.loadNpmTasks "grunt-newer"
 
 
 	grunt.registerTask "default", ["watch"]
 	grunt.registerTask "bwatch", ["build", "watch"]
-	grunt.registerTask "build", [ "clean", "coffee", "copy", "docker"]
+	grunt.registerTask "build", [ "clean", "coffeelint", "coffee", "copy", "docker", "rename"]
 	grunt.registerTask "test", ["mochacli"]

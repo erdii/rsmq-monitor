@@ -4,9 +4,8 @@
 		"username": "rsmq_monitor",
 		"password": "rsmq_monitor"
 	},
-	"queues": [
-		{"key": "queue1", "qname": "q1" },
-		{"key": "queue2", "qname": "q2", "interval": 10},
-		{"key": "queue3", "ns": "rsmq2", "qname": "q3", "host": "10.0.0.3", "port": 6379 }
-	]
+	"queues": {
+		"test_queue1": { "qname": "q1", "interval": 5},
+		"test_queue2":{ "qname": "q2", "interval": 1}
+	}
 }

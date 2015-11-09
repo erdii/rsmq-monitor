@@ -23,7 +23,7 @@ describe "Testing Influx-connector module", () ->
 
 
 	it "getStats", (done) ->
-		influx.getStats "test_queue1", (err, resp) ->
+		influx.getStats "test_queue1", "all", { wildcard: true }, (err, resp) ->
 			if not err?
 				if resp?
 					resp.length.should.be.exactly(4)

@@ -1,7 +1,6 @@
 _ = require "lodash"
 config = require "../lib/config"
 errors = require "../lib/errors"
-extend = require "extend"
 influxconn = require "../lib/influx-connector"
 rsmqconn = require "../lib/rsmq-connector"
 tools = require "../lib/tools"
@@ -12,45 +11,7 @@ class RMAPIv1Model extends require "../lib/base"
 		super
 		return
 
-	packField: (field, group, key) =>
-		if group <= @queues[key].interval
-			return field
-		else
-			return "mean(#{field}) as #{field}"
 
-	assembleOpts: (opts, selector, key) ->
-		# TODO move most of this code to lib/influx-connector
-		now = tools.now()
-		def =
-			start: now - 3600
-			end: now
-			group: 60
-
-		opts = extend({}, def, opts)
-
-		_opts =
-			where: "time > #{opts.start}s"
-
-		_opts.where += " AND time < #{opts.end}s" if opts.end?
-		_opts.limit = opts.limit if opts.limit?
-
-		switch selector
-			when "all"
-				_fields = ["count", "recv", "sent"]
-			when "count"
-				_fields = ["count"]
-			when "recv"
-				_fields = ["recv"]
-			when "sent"
-				_fields = ["sent"]
-
-		_opts.fields = ""
-		for _field in _fields
-			_opts.fields += @packField(_field, opts.group, key) + ", "
-		_opts.fields = _opts.fields.slice(0, -2)
-
-		_opts.group = "time(#{opts.group}s)" unless opts.group <= @queues[key].interval
-		return [_opts, opts]
 
 	getStats: (selector) =>
 		return (req, cb) =>
@@ -63,9 +24,7 @@ class RMAPIv1Model extends require "../lib/base"
 			else
 				opts = opts or {}
 
-			[_opts, opts_raw] = @assembleOpts(opts, selector, key)
-
-			influxconn.getStats key, _opts, (err, resp) =>
+			influxconn.getStats key, selector, opts, (err, resp, opts_raw) =>
 				if err?
 					cb(err)
 					return
